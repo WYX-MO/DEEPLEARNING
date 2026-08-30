@@ -28,6 +28,24 @@ def train_model(model,data_loader,data_loader_test,device,epoch= 10,learning_rat
                 print(f"accuracy: {acc / total}")
                 acc = 0
                 total = 0
+        model.eval()
+        acc = 0
+        total = 0
+        with torch.no_grad():
+            for i, (images,labels) in enumerate(data_loader_test):
+                images, labels = images.to(device), labels.to(device)
+                outputs = model(images)
+                pred = torch.argmax(outputs,dim=1)
+                acc+= torch.sum(pred==labels).item()
+                total+= labels.size(0)
+        print(f"epoch: {e}, test accuracy: {acc / total}")
+
+    torch.save({"model_state_dict": model.state_dict(),
+                "optimizer_state_dict": optimizer.state_dict(),
+                "epoch": epoch,
+                "loss": l.item(),
+                }, "baseline_cnn.pth")
+    
 if __name__ == "__main__":
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     data_loader, data_loader_test = get_data_loaders()
