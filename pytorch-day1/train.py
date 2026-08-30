@@ -5,7 +5,7 @@ from datasets.cifar10 import get_data_loaders
 from models.CNN import MyCNN
 
 
-def train_model(model,data_loader,data_loader_test,epoch= 10,learning_rate = 0.01):
+def train_model(model,data_loader,data_loader_test,device,epoch= 10,learning_rate = 0.01):
     loss = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
     print("start training")
@@ -31,4 +31,4 @@ if __name__ == "__main__":
     model = MyCNN()
     model.to(device)
     print("model to device:", device)
-    train_model(model,data_loader,data_loader_test)
+    train_model(model,data_loader,data_loader_test,device=device,epoch=10,learning_rate=0.001)
