@@ -4,21 +4,30 @@ import torch.optim as optim
 from datasets.cifar10 import get_data_loaders
 from models.CNN import MyCNN
 
+
 def train_model(model,data_loader,data_loader_test,epoch= 10,learning_rate = 0.01):
     loss = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
     print("start training")
     for e in range(epoch):
         model.train()
+        acc = 0
         for i, (images,labels) in enumerate(data_loader):
             optimizer.zero_grad()
             outputs = model(images)
+            pred = torch.argmax(outputs,dim=1)
+            acc+= torch.sum(pred==labels).item()
             l = loss(outputs,labels)
             l.backward()
             optimizer.step()
             if i % 100 == 0:
                 print(f"epoch: {e}, step: {i}, loss: {l.item()}")
+                print(f"accuracy: {acc / ((i + 1)*data_loader.batch_size)}")
+                acc = 0
 if __name__ == "__main__":
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     data_loader, data_loader_test = get_data_loaders()
     model = MyCNN()
+    model.to(device)
+    print("model to device:", device)
     train_model(model,data_loader,data_loader_test)
