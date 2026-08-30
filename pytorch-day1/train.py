@@ -27,6 +27,7 @@ def train_model(model,data_loader,data_loader_test,device,epoch= 10,learning_rat
                 print(f"epoch: {e}, step: {i}, loss: {l.item()}")
                 print(f"accuracy: {acc / total}")
                 acc = 0
+                total = 0
 if __name__ == "__main__":
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     data_loader, data_loader_test = get_data_loaders()
