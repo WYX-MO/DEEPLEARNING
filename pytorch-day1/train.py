@@ -13,6 +13,7 @@ def train_model(model,data_loader,data_loader_test,epoch= 10,learning_rate = 0.0
         model.train()
         acc = 0
         for i, (images,labels) in enumerate(data_loader):
+            images, labels = images.to(device), labels.to(device)
             optimizer.zero_grad()
             outputs = model(images)
             pred = torch.argmax(outputs,dim=1)
