@@ -12,18 +12,20 @@ def train_model(model,data_loader,data_loader_test,device,epoch= 10,learning_rat
     for e in range(epoch):
         model.train()
         acc = 0
+        total =0
         for i, (images,labels) in enumerate(data_loader):
             images, labels = images.to(device), labels.to(device)
             optimizer.zero_grad()
             outputs = model(images)
             pred = torch.argmax(outputs,dim=1)
             acc+= torch.sum(pred==labels).item()
+            total+= labels.size(0)
             l = loss(outputs,labels)
             l.backward()
             optimizer.step()
             if i % 100 == 0:
                 print(f"epoch: {e}, step: {i}, loss: {l.item()}")
-                print(f"accuracy: {acc / ((i + 1)*data_loader.batch_size)}")
+                print(f"accuracy: {acc / total}")
                 acc = 0
 if __name__ == "__main__":
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
