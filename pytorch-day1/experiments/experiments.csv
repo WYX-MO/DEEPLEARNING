@@ -1,2 +1,3 @@
 id,commit,model,augmentation,lr,batch_size,epochs,train_acc,test_acc,note
 Exp001,59c7293,cnn,none,0.01,64,10,~95%,73.98%,260831
+Exp002,93d3ca7,cnn,horizontal flip,0.01,64,10,~95%,73.59%,260901
