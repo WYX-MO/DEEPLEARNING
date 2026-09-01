@@ -79,5 +79,5 @@ if __name__ == "__main__":
     model = MyCNN()
     model.to(device)
     print("model to device:", device)
-    print("exp:")
+    print("exp:2")
     train_model(model,data_loader,data_loader_test,device=device,epoch=10,learning_rate=0.001)
