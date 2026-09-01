@@ -1,12 +1,17 @@
+# ResNet.py
 import torch
 import random
+import os
+import sys
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
+
 from torch import nn, optim
-from datasets.cifar10 import get_data_loaders
-from models.ResidualBlock import MyResidualBlock
+from ResidualBlock import MyResidualBlock
+from torch.nn.functional import avg_pool2d
 
 class My_resnet(nn.Module):
     def __init__(self, block, num_blocks, num_classes=10):
-        super(my_resnet, self).__init__()
+        super(My_resnet, self).__init__()
         self.in_channels = 64
 
         self.conv1 = nn.Conv2d(3, 64, kernel_size=3, stride=1, padding=1)
@@ -31,7 +36,10 @@ class My_resnet(nn.Module):
         out = self.layer2(out)
         out = self.layer3(out)
         out = self.layer4(out)
-        out = torch.avg_pool2d(out, 4)
+        out = avg_pool2d(out, 4)
         out = out.view(out.size(0), -1)
         out = self.linear(out)
         return out
+
+model = My_resnet(MyResidualBlock, [2, 2, 2, 2])
+print(model(torch.randn(64, 3, 32, 32)).shape)  # 测试模型输出形状
