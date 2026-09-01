@@ -9,11 +9,11 @@ def image_augmentation(image):
     # horizontal flip
     transforms.RandomApply(transforms=[transforms.RandomHorizontalFlip(p=1)], p=0.5)(image)
     # random rotation
-    transforms.RandomApply(transforms=[transforms.RandomRotation(degrees=15)], p=0)(image)
+    transforms.RandomApply(transforms=[transforms.RandomRotation(degrees=15)], p=0.5)(image)
     # random crop
-    transforms.RandomApply(transforms=[transforms.RandomResizedCrop(size=32, scale=(0.8, 1.0))], p=0)(image)
+    transforms.RandomApply(transforms=[transforms.RandomResizedCrop(size=32, scale=(0.8, 1.0))], p=0.5)(image)
     # color jitter
-    transforms.RandomApply(transforms=[transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.1)], p=0)(image)
+    transforms.RandomApply(transforms=[transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.1)], p=0.5)(image)
     return image
 
 def train_model(model,data_loader,data_loader_test,device,epoch= 10,learning_rate = 0.01):
@@ -66,4 +66,5 @@ if __name__ == "__main__":
     model = MyCNN()
     model.to(device)
     print("model to device:", device)
+    print("exp:")
     train_model(model,data_loader,data_loader_test,device=device,epoch=10,learning_rate=0.001)
