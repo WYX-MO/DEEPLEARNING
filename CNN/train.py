@@ -86,5 +86,5 @@ if __name__ == "__main__":
     model_resnet = My_resnet(MyResidualBlock, [2, 2, 2, 2])
     model_resnet.to(device)
     print("model to device:", device)
-    print("exp:2")
-    train_model(model1,data_loader,data_loader_test,device=device,epoch=10,learning_rate=0.001)
+    print("exp:5")
+    train_model(model_resnet,data_loader,data_loader_test,device=device,epoch=10,learning_rate=0.001)
