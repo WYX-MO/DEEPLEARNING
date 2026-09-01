@@ -28,6 +28,7 @@ def train_model(model,data_loader,data_loader_test,device,epoch= 10,learning_rat
         model.train()
         acc = 0
         total =0
+        l_total = 0
         for i, (images,labels) in enumerate(data_loader):
             images, labels = images.to(device), labels.to(device)
             optimizer.zero_grad()
@@ -39,10 +40,11 @@ def train_model(model,data_loader,data_loader_test,device,epoch= 10,learning_rat
             total+= labels.size(0)
             #backward
             l = loss(outputs,labels)
+            l_total += l.item()
             l.backward()
             optimizer.step()
         #if i % 100 == 0:
-        print(f"epoch: {e}, step: {i}, loss: {l.item()}")
+        print(f"epoch: {e}, step: {i}, loss: {l_total }")
         print(f"train accuracy: {acc / total}") 
         model.eval()
         acc = 0

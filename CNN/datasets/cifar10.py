@@ -17,7 +17,7 @@ def get_data_loaders(batch_size=64):
     """加载 CIFAR-10 训练集和测试集，返回 (data_loader, data_loader_test)。"""
     # data preprocessing train
     transform_train = transforms.Compose([
-        #image augmentation apply here
+        # image augmentation apply here
         transforms.RandomApply(transforms=[transforms.RandomHorizontalFlip(p=1)], p=0.5),
         transforms.RandomApply(transforms=[transforms.RandomRotation(degrees=15)], p=0.5),    
         transforms.RandomApply(transforms=[transforms.RandomCrop(32, padding=4)], p=0.5),  
