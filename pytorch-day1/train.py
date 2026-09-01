@@ -1,45 +1,49 @@
 import torch
 import torch.nn as nn
 import torch.optim as optim
+import numpy as np
 from datasets.cifar10 import get_data_loaders
 from models.CNN import MyCNN
 import torchvision.transforms as transforms
 
-def image_augmentation(image):
-    # horizontal flip
-    transforms.RandomApply(transforms=[transforms.RandomHorizontalFlip(p=1)], p=0.5)(image)
-    # random rotation
-    transforms.RandomApply(transforms=[transforms.RandomRotation(degrees=15)], p=0.5)(image)
-    # random crop
-    transforms.RandomApply(transforms=[transforms.RandomResizedCrop(size=32, scale=(0.8, 1.0))], p=0.5)(image)
-    # color jitter
-    transforms.RandomApply(transforms=[transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.1)], p=0.5)(image)
-    return image
+import random
+
+seed = 42
+
+random.seed(seed)
+torch.manual_seed(seed)
+torch.cuda.manual_seed(seed)
+np.random.seed(seed)
+
 
 def train_model(model,data_loader,data_loader_test,device,epoch= 10,learning_rate = 0.01):
+    # loss and optimizer
     loss = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
+
     print("start training")
+
+    max_acc_epoch =0
     for e in range(epoch):
         model.train()
         acc = 0
         total =0
         for i, (images,labels) in enumerate(data_loader):
             images, labels = images.to(device), labels.to(device)
-            # apply image augmentation
-            images = image_augmentation(images)
-
             optimizer.zero_grad()
+
             outputs = model(images)
             pred = torch.argmax(outputs,dim=1)
+            #conculate acc
             acc+= torch.sum(pred==labels).item()
             total+= labels.size(0)
+            #backward
             l = loss(outputs,labels)
             l.backward()
             optimizer.step()
-            if i % 100 == 0:
-                print(f"epoch: {e}, step: {i}, loss: {l.item()}")
-        print(f"accuracy: {acc / total}") 
+        #if i % 100 == 0:
+        print(f"epoch: {e}, step: {i}, loss: {l.item()}")
+        print(f"train accuracy: {acc / total}") 
         model.eval()
         acc = 0
         total = 0
@@ -52,13 +56,22 @@ def train_model(model,data_loader,data_loader_test,device,epoch= 10,learning_rat
                 pred = torch.argmax(outputs,dim=1)
                 acc+= torch.sum(pred==labels).item()
                 total+= labels.size(0)
-        print(f"epoch: {e}, test accuracy: {acc / total}")
+        print(f"test accuracy: {acc / total}")
+
+        if acc / total > max_acc_epoch:
+            max_acc_epoch = acc / total
+            # torch.save({"model_state_dict": model.state_dict(),
+            #     "optimizer_state_dict": optimizer.state_dict(),
+            #     "epoch": e,
+            #     "loss": l.item(),
+            #     }, "checkpoints/augmentation.pth")
+            # print(f"model saved at epoch {e} with best test accuracy: {max_acc_epoch}")
 
     torch.save({"model_state_dict": model.state_dict(),
                 "optimizer_state_dict": optimizer.state_dict(),
                 "epoch": epoch,
                 "loss": l.item(),
-                }, "baseline_cnn.pth")
+                }, f"augmentation{epoch}.pth")
     
 if __name__ == "__main__":
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
