@@ -4,6 +4,8 @@ import torch.optim as optim
 import numpy as np
 from datasets.cifar10 import get_data_loaders
 from models.CNN import MyCNN
+from models.ResNet import My_resnet
+from models.ResidualBlock import MyResidualBlock
 import torchvision.transforms as transforms
 
 import random
@@ -78,8 +80,10 @@ def train_model(model,data_loader,data_loader_test,device,epoch= 10,learning_rat
 if __name__ == "__main__":
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     data_loader, data_loader_test = get_data_loaders()
-    model = MyCNN()
-    model.to(device)
+    model1 = MyCNN()
+    model1.to(device)
+    model_resnet = My_resnet(MyResidualBlock, [2, 2, 2, 2])
+    model_resnet.to(device)
     print("model to device:", device)
     print("exp:2")
-    train_model(model,data_loader,data_loader_test,device=device,epoch=10,learning_rate=0.001)
+    train_model(model1,data_loader,data_loader_test,device=device,epoch=10,learning_rate=0.001)
