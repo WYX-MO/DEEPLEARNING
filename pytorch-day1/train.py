@@ -3,7 +3,18 @@ import torch.nn as nn
 import torch.optim as optim
 from datasets.cifar10 import get_data_loaders
 from models.CNN import MyCNN
+import torchvision.transforms as transforms
 
+def image_augmentation(image):
+    # horizontal flip
+    transforms.RandomApply(transforms=[transforms.RandomHorizontalFlip(p=1)], p=0.5)(image)
+    # random rotation
+    transforms.RandomApply(transforms=[transforms.RandomRotation(degrees=15)], p=0)(image)
+    # random crop
+    transforms.RandomApply(transforms=[transforms.RandomResizedCrop(size=32, scale=(0.8, 1.0))], p=0)(image)
+    # color jitter
+    transforms.RandomApply(transforms=[transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.1)], p=0)(image)
+    return image
 
 def train_model(model,data_loader,data_loader_test,device,epoch= 10,learning_rate = 0.01):
     loss = nn.CrossEntropyLoss()
@@ -15,6 +26,9 @@ def train_model(model,data_loader,data_loader_test,device,epoch= 10,learning_rat
         total =0
         for i, (images,labels) in enumerate(data_loader):
             images, labels = images.to(device), labels.to(device)
+            # apply image augmentation
+            images = image_augmentation(images)
+
             optimizer.zero_grad()
             outputs = model(images)
             pred = torch.argmax(outputs,dim=1)
@@ -25,12 +39,12 @@ def train_model(model,data_loader,data_loader_test,device,epoch= 10,learning_rat
             optimizer.step()
             if i % 100 == 0:
                 print(f"epoch: {e}, step: {i}, loss: {l.item()}")
-                print(f"accuracy: {acc / total}")
-                acc = 0
-                total = 0
+        print(f"accuracy: {acc / total}") 
         model.eval()
         acc = 0
         total = 0
+
+        # test accuracy
         with torch.no_grad():
             for i, (images,labels) in enumerate(data_loader_test):
                 images, labels = images.to(device), labels.to(device)
