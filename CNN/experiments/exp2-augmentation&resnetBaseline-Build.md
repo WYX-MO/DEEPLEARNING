@@ -108,6 +108,9 @@ Batch size 64 / Epochs 10 / Optimizer Adam / Learning rate 0.001 / Loss CrossEnt
 
 ## 9. Conclusion / Next Experiment
 
+### ResNet解决的问题：
+### 理论上深网络应该至少能复制浅网络的效果，但实际优化器很难让新增的非线性层学成 identity mapping
+
 - 增广 + BN + ResNet 三级改进逐级有效，ResNet baseline 在 CIFAR-10 上可达 ~86% Test。
 - 下一步：
   - 隔离变量：补跑「MyResNet 无增广」与「MyCNN(无 BN) + ResNet」对应跑批，量化结构与增广各自贡献；

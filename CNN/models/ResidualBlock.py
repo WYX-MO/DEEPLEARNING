@@ -25,6 +25,10 @@ class MyResidualBlock(nn.Module):
             )
 
     def forward(self, x):
+        '''
+        conv5x5
+        conv5x5
+        '''
         residual =x
         x = self.conv1(x)
         x = self.bn1(x)
