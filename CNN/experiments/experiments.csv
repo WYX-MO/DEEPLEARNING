@@ -4,5 +4,5 @@ Exp002-invalid,93d3ca7,cnn,horizontal flip,0.001,64,10,~95%,73.59%,260901
 Exp003-invalid,59b51ff,cnn,horizontal flip/rotation/crop/jitter,0.001,64,10,~95%,73.13%,0901;invalid with exp002; Because the augmentation didnt be applied into the image and the augmentation was code in train.py which is not good;and the lr is too high ;ill try 0.001;
 Exp004,02c89a5,cnn,h/r/c/j;all4,0.001,64,10,~76.7%,78.17%,4.19 points promotion;it seens like a nice try
 Exp005,fd0ad92,cnn,all,0.001,64,10,~78.5%,80.33%,6.35points promotion for base line;need only bn experiment to do
-Exp006,486a38d,cnn,all,0.001,64,10,86.21%,85,93%,11.95 points promotion but time speed much longer ;20 times longer,need optomize
+Exp006,486a38d,ResNet,all,0.001,64,10,86.21%,85,93%,11.95 points promotion but time speed much longer ;20 times longer,need optomize
 
