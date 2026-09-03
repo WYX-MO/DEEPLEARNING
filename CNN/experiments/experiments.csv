@@ -5,4 +5,7 @@ Exp003-invalid,59b51ff,cnn,horizontal flip/rotation/crop/jitter,0.001,64,10,~95%
 Exp004,02c89a5,cnn,h/r/c/j;all4,0.001,64,10,~76.7%,78.17%,4.19 points promotion;it seens like a nice try
 Exp005,fd0ad92,cnn,all,0.001,64,10,~78.5%,80.33%,6.35points promotion for base line;need only bn experiment to do
 Exp006,486a38d,ResNet,all,0.001,64,10,86.21%,85,93%,11.95 points promotion but time speed much longer ;20 times longer,need optomize
+Exp007,none,deeperPlainCNN,all,0.001,64,10,73.32%,74.32%,much bader
+007.1,none,deeperPlainCNN,all,0.001,64,10,78.63%,81.05%,CNN filter changed to 3x3 instand of 5x5;
+007.2,none,resnet,all,0.001,64,10,86.72%,88.27%,CNN filter also 3x3
 
