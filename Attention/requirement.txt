@@ -1,4 +1,4 @@
-# CNN 项目依赖 —— 按 dl conda 环境实际安装版本固定（osx-arm64 / Python 3.12）
+# Attention 项目依赖 —— 同 CNN，按 dl conda 环境实际安装版本固定（osx-arm64 / Python 3.12）
 # 重新安装：/Users/liuzejiang/miniconda3/envs/dl/bin/python -m pip install -r requirement.txt
 torch==2.5.1
 torchvision==0.20.1
