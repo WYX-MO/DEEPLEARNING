@@ -6,5 +6,8 @@ __pycache__/
 *.pyc
 *.pyo
 
+#pth
+*.pth
+
 # 数据集（大文件，不纳入版本控制，可随时重新下载）
 CNN/data/

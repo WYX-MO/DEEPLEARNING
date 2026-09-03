@@ -20,18 +20,17 @@ def get_data_loaders(batch_size=64):
         # image augmentation apply here
         transforms.RandomApply(transforms=[transforms.RandomHorizontalFlip(p=1)], p=0.5),
         transforms.RandomApply(transforms=[transforms.RandomRotation(degrees=15)], p=0.5),    
-        transforms.RandomApply(transforms=[transforms.RandomCrop(32, padding=4)], p=0.5),  
-        transforms.RandomApply(transforms=[transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.1)], p=0.5),    
+        # transforms.RandomApply(transforms=[transforms.RandomCrop(32, padding=4)], p=0.5),  
+        # transforms.RandomApply(transforms=[transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.1)], p=0.5),    
 
         transforms.ToTensor(),
-        transforms.Normalize((0.5, 0.5, 0.5),
-                             (0.5, 0.5, 0.5))
+        transforms.Normalize((0.4914, 0.4822, 0.4465),                  
+                       (0.2470, 0.2435, 0.2616))
     ])
 
     transform_test = transforms.Compose([
-        transforms.ToTensor(),
-        transforms.Normalize((0.5, 0.5,0.5),
-                             (0.5,0.5,0.5))
+    transforms.Normalize((0.4914, 0.4822, 0.4465),                  
+                       (0.2470, 0.2435, 0.2616))
     ])
 
 

@@ -4,9 +4,10 @@ import torch.nn as nn
 import torch.optim as optim
 import numpy as np
 from datasets.cifar10 import get_data_loaders
-from models.CNN import MyCNN
+from models.CNN3 import MyCNN
 from models.ResNet import My_resnet
 from models.ResidualBlock import MyResidualBlock
+from models.CNN_deeper_layers import MyDepperCNN,MyPlainBlock
 import torchvision.transforms as transforms
 
 import random
@@ -76,7 +77,7 @@ def train_model(model,data_loader,data_loader_test,device,epoch= 10,learning_rat
                 "optimizer_state_dict": optimizer.state_dict(),
                 "epoch": epoch,
                 "loss": l.item(),
-                }, f"augmentation{epoch}.pth")
+                }, f"PlainCNN{epoch}.pth")
     
 if __name__ == "__main__":
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -85,6 +86,8 @@ if __name__ == "__main__":
     model1.to(device)
     model_resnet = My_resnet(MyResidualBlock, [2, 2, 2, 2])
     model_resnet.to(device)
+    model_deeperCNN = MyDepperCNN(MyPlainBlock, [2, 2, 2, 2])
+    model_deeperCNN.to(device)
     print("model to device:", device)
-    print("exp:5")
+    print("exp:6")
     train_model(model_resnet,data_loader,data_loader_test,device=device,epoch=10,learning_rate=0.001)

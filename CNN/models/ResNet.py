@@ -6,7 +6,7 @@ import sys
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
 
 from torch import nn, optim
-from ResidualBlock import MyResidualBlock
+from models.ResidualBlock import MyResidualBlock
 from torch.nn.functional import avg_pool2d
 
 class My_resnet(nn.Module):
