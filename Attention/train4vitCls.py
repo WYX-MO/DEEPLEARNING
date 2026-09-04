@@ -17,6 +17,8 @@ def train_models(model,epoch=10,device=None,data_loader = None,data_loader_test 
     for epoch in range(epoch):  # example number of epochs
         model.train()
         total_loss = 0
+        correct = 0
+        total = 0
         for inputs, labels in data_loader:
             inputs = inputs.to(device)
             labels = labels.to(device)
@@ -26,10 +28,13 @@ def train_models(model,epoch=10,device=None,data_loader = None,data_loader_test 
             loss.backward()
             optimizer.step()
             total_loss += loss.item()
+            _, predicted = torch.max(outputs, 1)
+            total += labels.size(0)
+            correct += (predicted == labels).sum().item()
         scheduler.step()
-        print(f"Epoch {epoch+1}, Loss: {total_loss / len(data_loader)}")
+        print(f"Epoch {epoch+1}, Loss: {total_loss / len(data_loader)}, \nTrain Accuracy: {100 * correct / total}%")
         model.eval()
-        
+
         correct = 0
         total = 0
         with torch.no_grad():

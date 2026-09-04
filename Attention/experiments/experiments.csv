@@ -1,1 +1,2 @@
 id,commit,model,augmentation,lr,batch_size,epochs,train_acc,test_acc,note
+exp1,20ada08,Vit,all,0.0001,64,10,
