@@ -16,6 +16,7 @@ def train_models(model,epoch=10,device=None,data_loader = None,data_loader_test 
     scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=10, gamma=0.1)
     for epoch in range(epoch):  # example number of epochs
         model.train()
+        total_loss = 0
         for inputs, labels in data_loader:
             inputs = inputs.to(device)
             labels = labels.to(device)
@@ -24,8 +25,9 @@ def train_models(model,epoch=10,device=None,data_loader = None,data_loader_test 
             loss = criterion(outputs, labels)
             loss.backward()
             optimizer.step()
+            total_loss += loss.item()
         scheduler.step()
-        print(f"Epoch {epoch+1}, Loss: {loss.item()}")
+        print(f"Epoch {epoch+1}, Loss: {total_loss / len(data_loader)}")
         model.eval()
         correct = 0
         total = 0
