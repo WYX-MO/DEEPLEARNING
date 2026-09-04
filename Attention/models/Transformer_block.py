@@ -18,9 +18,9 @@ class TransformerBlock(nn.Module):
     def forward(self, x):
         # x: [batch_size, seq_len, d_model]
         attention_output, _ = self.attention(x)
-        print(x)
+        #print(x)
         x = self.layer_norm1(x + attention_output)  # Residual connection + LayerNorm
-        print(x)
+        #print(x)
         feed_forward_output = self.feed_forward(x)
         x = self.layer_norm2(x + feed_forward_output)  # Residual connection + LayerNorm
         return x
