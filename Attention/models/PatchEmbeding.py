@@ -1,8 +1,8 @@
-# PatchEncoding.py
+# PatchEmbeding.py
 import torch
 import torch.nn as nn
 
-class PatchEncoding(nn.Module):
+class PatchEmbeding(nn.Module):
     def __init__(self, in_channels=3, patch_size=4, d_model=192):
         super().__init__()
         self.patch_size = patch_size
