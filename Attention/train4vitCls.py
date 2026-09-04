@@ -45,5 +45,7 @@ def train_models(model,epoch=10,device=None,data_loader = None,data_loader_test 
 if __name__ == "__main__":
     data_loader, data_loader_test = get_data_loaders()
     model = VitionTransformer(in_channels=3, patch_size=4, d_model=192, num_layers=12, num_heads=3, mlp_ratio=4.0, num_classes=10)
-    device = 'cpu' if not torch.cuda.is_available() else 'cuda'
+    device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
+    print("using device:", device)
+    print("start training;exp1")
     train_models( model, epoch=10, device=device, data_loader=data_loader, data_loader_test=data_loader_test)
