@@ -29,6 +29,7 @@ def train_models(model,epoch=10,device=None,data_loader = None,data_loader_test 
         scheduler.step()
         print(f"Epoch {epoch+1}, Loss: {total_loss / len(data_loader)}")
         model.eval()
+        
         correct = 0
         total = 0
         with torch.no_grad():

@@ -29,6 +29,7 @@ def get_data_loaders(batch_size=64):
     ])
 
     transform_test = transforms.Compose([
+    transforms.ToTensor(),
     transforms.Normalize((0.4914, 0.4822, 0.4465),                  
                        (0.2470, 0.2435, 0.2616))
     ])
