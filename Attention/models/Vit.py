@@ -22,13 +22,17 @@ class VitionTransformer(nn.Module):
         ])
 
         self.clsHead = nn.Linear(d_model, num_classes)
+        self.embed_dropout = nn.Dropout(0.1)
+        self.head_dropout = nn.Dropout(0.1)
 
     def forward(self, x):
         x = self.patch_encoding(x)  # (B, num_patches, d_model)
+        x = self.embed_dropout(x)
         x = self.cls_token(x)       # (B, num_patches+1, d_model)
         x = self.position_encoding(x)  # (B, num_patches+1, d_model)
         for transformer_block in self.transformer_blocks:
             x = transformer_block(x)  # (B, num_patches+1, d_model)
+        x = self.head_dropout(x)
         x = self.clsHead(x[:, 0])  # Use the CLS token for classification
         return x
 

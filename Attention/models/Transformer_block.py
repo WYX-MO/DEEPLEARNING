@@ -14,15 +14,17 @@ class TransformerBlock(nn.Module):
         self.feed_forward = FeedForward(d_model, int(d_model * mlp_ratio))
         self.layer_norm1 = nn.LayerNorm(d_model)
         self.layer_norm2 = nn.LayerNorm(d_model)
+        self.dropout1 = nn.Dropout(0.1)   # attention 输出用                            
+        self.dropout2 = nn.Dropout(0.1)   # FFN 输出用
 
     def forward(self, x):
         # x: [batch_size, seq_len, d_model]
         attention_output, _ = self.attention(x)
         #print(x)
-        x = self.layer_norm1(x + attention_output)  # Residual connection + LayerNorm
+        x = self.layer_norm1(x + self.dropout1(attention_output))  # Residual connection + LayerNorm
         #print(x)
         feed_forward_output = self.feed_forward(x)
-        x = self.layer_norm2(x + feed_forward_output)  # Residual connection + LayerNorm
+        x = self.layer_norm2(x + self.dropout2(feed_forward_output))  # Residual connection + LayerNorm
         return x
 
 if __name__ == "__main__":

@@ -64,7 +64,7 @@ class MultiHeadAttention(nn.Module):
         self.d_k = d_model // num_heads
         self.W = nn.Linear(d_model, num_heads * self.d_k * 3)  # For Q, K, V
         self.W_o = nn.Linear(num_heads * self.d_k, d_model)
-
+        self.attn_dropout = nn.Dropout(0.1)
     def forward(self, x):
         # x: [batch_size, seq_len, d_model]
         batch_size, seq_len, _ = x.size()
@@ -82,6 +82,7 @@ class MultiHeadAttention(nn.Module):
         # Compute attention scores
         attention_scores = torch.matmul(Q, K.transpose(-2, -1)) / (K.size(-1) ** 0.5)  # [batch_size, num_heads, seq
         attention_scores = F.softmax(attention_scores, dim=-1)  # [batch_size, num_heads, seq_len, seq_len]                                                            
+        attention_scores = self.attn_dropout(attention_scores)
         attention = torch.matmul(attention_scores, V)  # [batch_size, num_heads, seq_len, d_k]
         attention = attention.transpose(1,2)
         attention = attention.reshape(batch_size, seq_len, -1)
