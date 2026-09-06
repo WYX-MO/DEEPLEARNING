@@ -19,6 +19,7 @@ class DecoderBlock(nn.Module):
         self.ffn = FeedForward(d_model_seq, int(d_model_seq * mlp_ratio))
         #self.mask = torch.triu(torch.ones(1, 1, requires_grad=False), diagonal=1).bool()
         self.ffn_norm = nn.LayerNorm(d_model_seq)
+        
     def forward(self, img_,seq_,mask):
         self_attn_output, _ = self.self_attn(seq_, mask=mask)
         seq_ = self.layer_norm(seq_ + self_attn_output)
