@@ -4,10 +4,12 @@
 import torch
 import os
 import sys
-sys.path.insert(0,os.path.join( os.path.dirname(os.path.abspath(__file__)),'..','..'))
+# 让 `import Attention` 生效：把 Attention 的父目录加入 sys.path（不依赖运行 cwd）
+_THIS_DIR = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.dirname(_THIS_DIR))
 import torch.nn as nn
 from Attention.models.ImageCaptioningModel import ImageCaptioningModel
-from Attention.data import get_data_loaders
+from Attention.datasets.Flickr8k import get_data_loaders, get_vocab_size, CAPTION_MAX_LEN
 
 
 def train_models(model,epoch=100,device=None,data_loader = None,data_loader_test = None):
@@ -19,8 +21,6 @@ def train_models(model,epoch=100,device=None,data_loader = None,data_loader_test
     for epoch in range(epoch):  # example number of epochs
         model.train()
         total_loss = 0
-        correct = 0
-        total = 0
         for img, cap in data_loader:
             img = img.to(device)
             cap = cap.to(device)
@@ -32,15 +32,12 @@ def train_models(model,epoch=100,device=None,data_loader = None,data_loader_test
             optimizer.step()
             total_loss += loss.item()
             _, predicted = torch.max(outputs.reshape(-1, outputs.shape[-1]), 1)
-            total += cap_tar.reshape(-1).size(0)
-            correct += (predicted == cap_tar.reshape(-1)).sum().item()
+
 
         #scheduler.step()
-        print(f"Epoch {epoch+1}, Loss: {total_loss / len(data_loader)}, \nTrain Accuracy: {100 * correct / total}%")
+        print(f"Epoch {epoch+1}, Loss: {total_loss / len(data_loader)}%")
         model.eval()
 
-        correct = 0
-        total = 0
         with torch.no_grad():
             for img, cap in data_loader_test:
                 img = img.to(device)
@@ -48,9 +45,8 @@ def train_models(model,epoch=100,device=None,data_loader = None,data_loader_test
                 cap_in,cap_tar = cap[:, :-1], cap[:, 1:]
                 outputs = model(img, cap_in)
                 _, predicted = torch.max(outputs.reshape(-1, outputs.shape[-1]), 1)
-                total += cap_tar.reshape(-1).size(0)
-                correct += (predicted == cap_tar.reshape(-1)).sum().item()
-        print(f"Epoch {epoch+1}, Test Accuracy: {100 * correct / total}%")
+
+        print(f"Epoch {epoch+1}%")
         torch.save({
             "model_state_dict": model.state_dict(),
             "optimizer_state_dict": optimizer.state_dict(),
@@ -58,10 +54,11 @@ def train_models(model,epoch=100,device=None,data_loader = None,data_loader_test
         }, f"checkpoints/vit_model_epoch_{epoch+1}.pth")
 
 if __name__ == "__main__":
+        vocab_size = get_vocab_size()
         data_loader, data_loader_test = get_data_loaders()
-        model = ImageCaptioningModel(vocab_size=10000, max_seq_len=32)
+        model = ImageCaptioningModel(vocab_size=vocab_size, max_seq_len=CAPTION_MAX_LEN)
         device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
         print("using device:", device)
-        print("start training;exp2")
+        print("start training;exp0")
         train_models( model, epoch=100, device=device, data_loader=data_loader, data_loader_test=data_loader_test)
 
