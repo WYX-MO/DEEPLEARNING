@@ -104,6 +104,24 @@ def _default_transform():
     t += [transforms.ToTensor(), transforms.Normalize((.5,) * 3, (.5,) * 3)]
     return transforms.Compose(t)
 
+def get_test_transformer():
+    test_transforms = transforms.Compose([
+        transforms.Resize(256),
+        transforms.CenterCrop(224),
+        transforms.ToTensor(),
+        transforms.Normalize((.5,) * 3, (.5,) * 3)
+    ])
+    return test_transforms
+
+def get_train_transformer():
+    train_transforms = transforms.Compose([
+        transforms.Resize(256),
+        transforms.RandomCrop(224),
+        transforms.RandomHorizontalFlip(0.5),
+        transforms.ToTensor(),
+        transforms.Normalize((.5,) * 3, (.5,) * 3)
+    ])
+    return train_transforms
 
 class Flickr8kCaptions(Dataset):
     def __init__(self, split='train', transform=None):
@@ -138,8 +156,8 @@ class Flickr8kCaptions(Dataset):
 
 def get_data_loaders(batch_size=64, num_workers=0):
     """返回 (train_loader, test_loader)，供 train.py 迭代 (image, caption)。"""
-    train_ds = Flickr8kCaptions('train')
-    test_ds = Flickr8kCaptions('test')
+    train_ds = Flickr8kCaptions('train', transform=get_train_transformer())
+    test_ds = Flickr8kCaptions('test', transform=get_test_transformer())
     train_loader = DataLoader(train_ds, batch_size=batch_size,
                               shuffle=True, num_workers=num_workers,
                               drop_last=True)
