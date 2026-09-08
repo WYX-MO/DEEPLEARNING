@@ -1,0 +1,50 @@
+<!doctype html><html lang="zh"><head><meta charset="utf-8">
+<title>view / reshape / flatten · torch 速查</title><style>
+body{font-family:-apple-system,'PingFang SC',Helvetica,Arial,sans-serif;
+     max-width:920px;margin:24px auto;padding:0 20px;line-height:1.7;color:#222}
+h1{border-bottom:3px solid #4a6;padding-bottom:8px}
+h2{color:#345;border-left:5px solid #69c;padding-left:10px;margin-top:28px}
+.tag{display:inline-block;background:#eef;color:#45c;border-radius:4px;
+     padding:2px 10px;font-size:13px;margin-left:8px}
+table{border-collapse:collapse;width:100%;margin:8px 0}
+th,td{border:1px solid #ddd;padding:6px 10px;text-align:left;font-size:14px}
+th{background:#f4f6fa}
+pre{background:#0f1626;color:#d7e0ee;padding:12px;border-radius:8px;
+    overflow-x:auto;font-size:13px;line-height:1.5}
+pre.out{background:#f4f9f4;color:#1d3;border:1px solid #bec;color:#14532d}
+.note{color:#666;font-size:13px}
+.src{color:#999;font-size:12px;margin-top:4px}
+</style></head><body>
+<h1>view / reshape / flatten <span class="tag">张量运算</span></h1>
+<p>改变形状。view 是共享内存的视图（要求原张量连续）；reshape 在能 view 时用 view、否则自动复制；flatten(起始维) 把从该维开始的轴全部压成一维。</p>
+<h2>参数</h2>
+<table><tr><th style="width:30%">参数</th><th>说明</th></tr><tr><td><code>view(*shape)</code></td><td>按新形状查看；-1 表示自动推断；不连续会报错</td></tr><tr><td><code>reshape(*shape)</code></td><td>功能近似 view，但不连续时自动 contiguous() 拷贝</td></tr><tr><td><code>flatten(start_dim=0)</code></td><td>把 start_dim 起的维压平</td></tr></table>
+<h2>要点 / 坑</h2><ul><li>view 只是换『解释方式』，改它的值会改到原张量。</li><li>元素总数必须一致：如 2*3*4=24，view(2,-1)-&gt;(2,12)。</li><li>经典报错：对 transpose 后的不连续张量直接 view() → 先 .contiguous()。</li></ul>
+<h2>示例（本机 torch 真实运行）</h2>
+<pre>
+import torch
+x = torch.randn(2, 3, 4)
+print(&quot;x:&quot;, tuple(x.shape), &quot;numel:&quot;, x.numel())
+
+print(&quot;view(2,-1):&quot;, tuple(x.view(2, -1).shape))      # (2,12)
+print(&quot;reshape(-1):&quot;, tuple(x.reshape(-1).shape))     # (24,)
+print(&quot;flatten(1):&quot;, tuple(x.flatten(1).shape))       # (2,12)
+
+y = x.transpose(0, 1)              # 不连续
+print(&quot;y 连续?&quot;, y.is_contiguous())
+try:
+    y.view(-1, 4)
+except RuntimeError as e:
+    print(&quot;view 报错:&quot;, str(e)[:50], &quot;...&quot;)
+print(&quot;reshape 不报错:&quot;, tuple(y.reshape(-1, 4).shape))
+</pre>
+<pre class="out">x: (2, 3, 4) numel: 24
+view(2,-1): (2, 12)
+reshape(-1): (24,)
+flatten(1): (2, 12)
+y 连续? False
+view 报错: view size is not compatible with input tensor&#x27;s si ...
+reshape 不报错: (6, 4)
+</pre>
+<p class="src">来源: 自建知识库 + 本机 torch 执行结果（非官网）· 生成于 2026-09-08 11:18</p>
+</body></html>

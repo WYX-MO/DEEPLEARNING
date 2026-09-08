@@ -1,0 +1,48 @@
+<!doctype html><html lang="zh"><head><meta charset="utf-8">
+<title>ModuleList / Sequential · torch 速查</title><style>
+body{font-family:-apple-system,'PingFang SC',Helvetica,Arial,sans-serif;
+     max-width:920px;margin:24px auto;padding:0 20px;line-height:1.7;color:#222}
+h1{border-bottom:3px solid #4a6;padding-bottom:8px}
+h2{color:#345;border-left:5px solid #69c;padding-left:10px;margin-top:28px}
+.tag{display:inline-block;background:#eef;color:#45c;border-radius:4px;
+     padding:2px 10px;font-size:13px;margin-left:8px}
+table{border-collapse:collapse;width:100%;margin:8px 0}
+th,td{border:1px solid #ddd;padding:6px 10px;text-align:left;font-size:14px}
+th{background:#f4f6fa}
+pre{background:#0f1626;color:#d7e0ee;padding:12px;border-radius:8px;
+    overflow-x:auto;font-size:13px;line-height:1.5}
+pre.out{background:#f4f9f4;color:#1d3;border:1px solid #bec;color:#14532d}
+.note{color:#666;font-size:13px}
+.src{color:#999;font-size:12px;margin-top:4px}
+</style></head><body>
+<h1>ModuleList / Sequential <span class="tag">容器</span></h1>
+<p>两个『装层的容器』。Sequential：给一组层，forward 自动依次执行；ModuleList：只负责登记一堆层（好让 .parameters() 收集到），forward 要自己写循环。decoder 堆叠多个 block 用 ModuleList + for 循环。</p>
+<h2>参数</h2>
+<table><tr><th style="width:30%">参数</th><th>说明</th></tr><tr><td><code>nn.Sequential(*layers)</code></td><td>自动 chain，前一层输出喂下一层</td></tr><tr><td><code>nn.ModuleList([...])</code></td><td>只存层，必须自己 for 循环调用</td></tr></table>
+<h2>要点 / 坑</h2><ul><li>把层装进 Python list 而不是 ModuleList → 参数不会被 optimizer 收集到！</li><li>ModuleList 好处是能按层索引/动态取，参数照样注册。</li></ul>
+<h2>示例（本机 torch 真实运行）</h2>
+<pre>
+import torch, torch.nn as nn
+seq = nn.Sequential(
+    nn.Linear(4, 8),
+    nn.ReLU(),
+    nn.Linear(8, 2),
+)
+blocks = nn.ModuleList([nn.Linear(4, 4) for _ in range(3)])  # 像 decoder 多层
+
+x = torch.randn(5, 4)
+y = x
+for b in blocks:            # ModuleList 要自己循环
+    y = b(y)
+print(&quot;ModuleList 手动链:&quot;, tuple(y.shape))
+print(&quot;Sequential 自动链:&quot;, tuple(seq(x).shape))
+
+# 参数都能被收集到（重点：ModuleList 让 optimizer 能找到它们）
+print(&quot;ModuleList 可训练参数数:&quot;, sum(p.numel() for p in blocks.parameters()))
+</pre>
+<pre class="out">ModuleList 手动链: (5, 4)
+Sequential 自动链: (5, 2)
+ModuleList 可训练参数数: 60
+</pre>
+<p class="src">来源: 自建知识库 + 本机 torch 执行结果（非官网）· 生成于 2026-09-08 11:24</p>
+</body></html>

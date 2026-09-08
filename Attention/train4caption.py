@@ -1,6 +1,4 @@
-#train.py
-# TODO: 参照 ../CNN/train.py 的结构自己写训练入口
-# 固定 seed -> 加载数据 -> 建模型 -> 训练循环（train/valid）-> 记录结果到 experiments/experiments.csv
+# train4caption
 import torch
 import os
 import sys

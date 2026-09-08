@@ -1,0 +1,45 @@
+<!doctype html><html lang="zh"><head><meta charset="utf-8">
+<title>torch.matmul / @ · torch 速查</title><style>
+body{font-family:-apple-system,'PingFang SC',Helvetica,Arial,sans-serif;
+     max-width:920px;margin:24px auto;padding:0 20px;line-height:1.7;color:#222}
+h1{border-bottom:3px solid #4a6;padding-bottom:8px}
+h2{color:#345;border-left:5px solid #69c;padding-left:10px;margin-top:28px}
+.tag{display:inline-block;background:#eef;color:#45c;border-radius:4px;
+     padding:2px 10px;font-size:13px;margin-left:8px}
+table{border-collapse:collapse;width:100%;margin:8px 0}
+th,td{border:1px solid #ddd;padding:6px 10px;text-align:left;font-size:14px}
+th{background:#f4f6fa}
+pre{background:#0f1626;color:#d7e0ee;padding:12px;border-radius:8px;
+    overflow-x:auto;font-size:13px;line-height:1.5}
+pre.out{background:#f4f9f4;color:#1d3;border:1px solid #bec;color:#14532d}
+.note{color:#666;font-size:13px}
+.src{color:#999;font-size:12px;margin-top:4px}
+</style></head><body>
+<h1>torch.matmul / @ <span class="tag">张量运算</span></h1>
+<p>矩阵乘法。2 维时等价 A @ B = (A的行, B的列)。更高维时把最后两维当矩阵、前面的维当 batch 做广播相乘。</p>
+<h2>参数</h2>
+<table><tr><th style="width:30%">参数</th><th>说明</th></tr><tr><td><code>input, other</code></td><td>两个相乘张量</td></tr><tr><td><code>广播规则</code></td><td>若都 ≥3 维，要求除最后两维外的形状可广播</td></tr></table>
+<h2>要点 / 坑</h2><ul><li>@ 是 matmul 的简写；两者一样。</li><li>要区分 element-wise 的 *（逐元素乘）和 @（矩阵乘）。</li><li>两个 2D 满足内维相等 (m,k)@(k,n)；不满足会报错。</li></ul>
+<h2>示例（本机 torch 真实运行）</h2>
+<pre>
+import torch
+a = torch.randn(2, 3)          # (m,k)=(2,3)
+b = torch.randn(3, 4)          # (k,n)=(3,4)
+c = a @ b
+print(&quot;2D 结果:&quot;, tuple(c.shape))            # (2,4)
+
+# 高维 = 前两维当 batch 广播
+A = torch.randn(5, 2, 3)
+B = torch.randn(5, 3, 4)
+print(&quot;batched:&quot;, tuple((A @ B).shape))       # (5,2,4)
+
+# 手动逐元素验证
+manual = (a @ b)
+print(&quot;torch.matmul == @ :&quot;, torch.allclose(c, torch.matmul(a, b)))
+</pre>
+<pre class="out">2D 结果: (2, 4)
+batched: (5, 2, 4)
+torch.matmul == @ : True
+</pre>
+<p class="src">来源: 自建知识库 + 本机 torch 执行结果（非官网）· 生成于 2026-09-08 11:29</p>
+</body></html>

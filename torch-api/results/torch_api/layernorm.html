@@ -1,0 +1,42 @@
+<!doctype html><html lang="zh"><head><meta charset="utf-8">
+<title>LayerNorm vs BatchNorm · torch 速查</title><style>
+body{font-family:-apple-system,'PingFang SC',Helvetica,Arial,sans-serif;
+     max-width:920px;margin:24px auto;padding:0 20px;line-height:1.7;color:#222}
+h1{border-bottom:3px solid #4a6;padding-bottom:8px}
+h2{color:#345;border-left:5px solid #69c;padding-left:10px;margin-top:28px}
+.tag{display:inline-block;background:#eef;color:#45c;border-radius:4px;
+     padding:2px 10px;font-size:13px;margin-left:8px}
+table{border-collapse:collapse;width:100%;margin:8px 0}
+th,td{border:1px solid #ddd;padding:6px 10px;text-align:left;font-size:14px}
+th{background:#f4f6fa}
+pre{background:#0f1626;color:#d7e0ee;padding:12px;border-radius:8px;
+    overflow-x:auto;font-size:13px;line-height:1.5}
+pre.out{background:#f4f9f4;color:#1d3;border:1px solid #bec;color:#14532d}
+.note{color:#666;font-size:13px}
+.src{color:#999;font-size:12px;margin-top:4px}
+</style></head><body>
+<h1>LayerNorm vs BatchNorm <span class="tag">nn 层</span></h1>
+<p>两者都在做『标准化(减均值除方差)』，但归一化的『对象』不同：LayerNorm 对每个样本的最后一维归一化；BatchNorm 对每个通道跨 batch 归一化。Transformer 里序列长短不齐、每个样本独立 → 用 LayerNorm。</p>
+<h2>参数</h2>
+<table><tr><th style="width:30%">参数</th><th>说明</th></tr><tr><td><code>LayerNorm(normalized_shape)</code></td><td>归一化的轴是最后一维</td></tr><tr><td><code>BatchNorm1d/2d(num_features)</code></td><td>归一化的轴是跨 batch 的每个通道</td></tr></table>
+<h2>要点 / 坑</h2><ul><li>BatchNorm 依赖 batch 统计，推理要用训练累计的 running 统计；小 batch 不稳。</li><li>LayerNorm 与 batch 无关，逐样本可算 —— 这是 transformer 选它的核心原因。</li></ul>
+<h2>示例（本机 torch 真实运行）</h2>
+<pre>
+import torch, torch.nn as nn
+torch.manual_seed(0)
+x = torch.randn(4, 3)            # 4个样本 × 3维特征
+bn = nn.BatchNorm1d(3)           # 对每一列(特征)，跨4个样本归一化
+ln = nn.LayerNorm(3)             # 对每一行(样本)，跨3维特征归一化
+print(&quot;BN 的列(每特征跨batch) 均~0 方~1:&quot;)
+print(&quot;  &quot;, bn(x).mean(dim=0), bn(x).std(dim=0))
+print(&quot;LN 的行(每样本跨特征) 均~0 方~1:&quot;)
+print(&quot;  &quot;, ln(x).mean(dim=1), ln(x).std(dim=1))
+</pre>
+<pre class="out">BN 的列(每特征跨batch) 均~0 方~1:
+   tensor([-5.9605e-08, -3.7253e-08,  0.0000e+00], grad_fn=&lt;MeanBackward1&gt;) tensor([1.1547, 1.1547, 1.1547], grad_fn=&lt;StdBackward0&gt;)
+LN 的行(每样本跨特征) 均~0 方~1:
+   tensor([ 3.9736e-08,  5.9605e-08, -3.9736e-08,  1.1921e-07],
+       grad_fn=&lt;MeanBackward1&gt;) tensor([1.2247, 1.2247, 1.2247, 1.2247], grad_fn=&lt;StdBackward0&gt;)
+</pre>
+<p class="src">来源: 自建知识库 + 本机 torch 执行结果（非官网）· 生成于 2026-09-08 11:19</p>
+</body></html>
