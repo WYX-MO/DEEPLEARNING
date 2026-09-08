@@ -1436,5 +1436,818 @@ print("换分类头后输出:", tuple(m(x).shape))        # (1,10)
 ''',
 ),
 
+# ---------------- 张量·进阶 ----------------
+dict(
+    title="torch.gather",
+    keys=["gather", "torch.gather", "x.gather", "按下标取值", "index 取值"],
+    cat="张量·进阶",
+    desc=("按 index 里给出的下标，沿 dim 取原张量的对应值。常用于『按 target 挑出该样本"
+          "那一类的 logits/log 概率』（手写 NLL 的核心）。"),
+    params=[
+        ("gather(dim, index)", "index 每个位置都存一个『沿 dim 的下标』"),
+        ("index 形状", "输出形状与 index 一致；除 dim 外的维要能对得上 input"),
+        ("常见写法", "沿类别维挑: logits.gather(1, target.unsqueeze(1))"),
+    ],
+    notes=[
+        "别和 index_select（整片取）混；gather 是逐位置取。",
+        "target 要 unsqueeze 加一维再 gather，最后 squeeze 掉。",
+    ],
+    example='''
+import torch
+import torch.nn.functional as F
+logits = torch.tensor([[2.0, 1.0, 0.1],
+                       [0.5, 3.0, 1.0]])
+target = torch.tensor([0, 2])              # 每行要取的下标
+picked = logits.gather(dim=1, index=target.unsqueeze(1)).squeeze(1)
+print("按 target 取的 logit:", picked.tolist())   # [2.0, 1.0]
+
+logp = F.log_softmax(logits, dim=-1)
+nll = -logp.gather(1, target.unsqueeze(1)).squeeze(1)
+print("手动 NLL:", nll.tolist())
+print("== CrossEntropy(reduction=none):",
+      torch.allclose(nll, F.cross_entropy(logits, target, reduction="none")).item())
+''',
+),
+
+dict(
+    title="F.one_hot",
+    keys=["one_hot", "onehot", "F.one_hot", "独热", "one-hot"],
+    cat="张量·进阶",
+    desc=("把整数类别下标变成 one-hot 矩阵。标签→独热向量，某些损失/自定义计算需要。"),
+    params=[
+        ("F.one_hot(tensor, num_classes)", "每个元素变成一个 num_classes 长的 0/1 向量"),
+        ("num_classes", "类别数；不写则用 max+1"),
+        ("返回值 dtype", "int64，不是 float，要用时 .float()"),
+    ],
+    notes=[
+        "index 越界会报错；先确认下标 < num_classes。",
+        "CrossEntropyLoss 用不到 one-hot（直接吃下标），别多此一举。",
+    ],
+    example='''
+import torch
+import torch.nn.functional as F
+y = torch.tensor([0, 1, 2, 1])
+oh = F.one_hot(y, num_classes=3)
+print(oh)                                  # (4,3)
+print("形状:", tuple(oh.shape), "dtype:", oh.dtype)
+print("要 float 就 .float():", oh.float().dtype)
+''',
+),
+
+dict(
+    title="torch.multinomial（带温度/top-k 采样）",
+    keys=["multinomial", "sample", "sampling", "温度采样", "temperature", "torch.multinomial"],
+    cat="张量·进阶",
+    desc=("按概率分布『随机抽』下标，是文本/图像生成的采样基础。温度 temp<1 让分布更尖(更贪)，"
+          "temp>1 更平(更多样)。greedy 则是每步直接 argmax。"),
+    params=[
+        ("multinomial(probs, num_samples, replacement)", "按 probs 抽 num_samples 个下标"),
+        ("temperature", "先 logits/temp 再过 softmax 得到采样分布"),
+        ("replacement", "True=有放回(可重复抽到)"),
+    ],
+    notes=[
+        "sampling 前要把 logits 先 softmax 成合法概率分布。",
+        "想用 top-k：先 topk 取最大 k 个，把其余的 logits 填 -inf，再 softmax 采。",
+    ],
+    example='''
+import torch
+torch.manual_seed(1)
+logits = torch.tensor([[0.5, 2.0, 3.0]])      # 未归一化分数
+temp = 0.8                                     # <1 更贪
+probs = torch.softmax(logits / temp, dim=-1)
+print("温度采样概率:", [round(float(v), 3) for v in probs[0]])
+samples = torch.multinomial(probs, num_samples=6, replacement=True)
+print("采样词 id:", samples.tolist())          # 大概率集中在 id=2
+print("greedy(恒取最大):", logits.argmax(-1).tolist())
+''',
+),
+
+# ---------------- 损失·进阶 ----------------
+dict(
+    title="KLDivLoss / F.kl_div（蒸馏）",
+    keys=["kldiv", "kl_div", "kl divergence", "KL散度", "蒸馏", "nn.KLDivLoss", "distill"],
+    cat="损失·进阶",
+    desc=("衡量两个分布差异，知识蒸馏用它让『学生』靠近『教师』的软输出。"
+          "关键坑：input 必须已是 log 概率(log_softmax 过)，target 是普通概率，别搞反。"),
+    params=[
+        ("F.kl_div(log_q, p, reduction)", "log_q=学生 log 概率；p=教师概率(soft label)"),
+        ("reduction='batchmean'", "对 batch 求平均(与手写一致)；'none'/'sum' 也可"),
+        ("nn.KLDivLoss(reduction='batchmean')", "同 F.kl_div 的类版本"),
+    ],
+    notes=[
+        "教师 soft label 里别出现 0（log 会炸）；可加温度软化。",
+        "真分布/标签概率若没取 log，别直接塞进 input。",
+    ],
+    example='''
+import torch
+import torch.nn.functional as F
+p = torch.tensor([[0.7, 0.2, 0.1]])              # 教师概率(软标签)
+logits = torch.tensor([[1.6, 0.6, 0.5]])          # 学生 logits
+log_q = F.log_softmax(logits, dim=-1)             # 学生 log 概率
+kl = F.kl_div(log_q, p, reduction="batchmean")
+print("KL(q||p):", round(float(kl), 4))
+manual = (p * (torch.log(p) - log_q)).sum(dim=-1).mean()
+print("与手写一致:", torch.allclose(kl, manual).item())
+''',
+),
+
+dict(
+    title="(B,L,V) 序列做 CrossEntropy（teacher forcing 常用）",
+    keys=["reshape loss", "teacher forcing", "(B,L,C) loss", "sequence loss", "逐词CE", "shift"],
+    cat="损失·进阶",
+    desc=("语言/图像描述里 logits 形状是 (B, 时间步, 词表)，target 是 (B, 时间步)。"
+          "算 CE 前把前两维合起来 reshape(-1, V)，pad 位置用 ignore_index 排除即可。"),
+    params=[
+        ("logits.reshape(-1, V)", "把 (B,L,V) 并成 (B*L, V)，词表维留最后"),
+        ("target.reshape(-1)", "并成 (B*L,) 的 long 下标"),
+        ("ignore_index", "把 pad(<pad>=0) 位置排除出 loss 分子分母"),
+    ],
+    notes=[
+        "decoder 输出形状 (B,L,V)，V 必须在最后一维，reshape 才正确。",
+        "teacher forcing = 把真实词(移位后)喂 decoder，跟输出逐位置算 CE。",
+    ],
+    example='''
+import torch, torch.nn as nn
+B, L, V = 2, 5, 10
+logits = torch.randn(B, L, V)                # (B, 步, 词表)
+target = torch.randint(1, V, (B, L))
+target[0, 3:] = 0                            # 模拟句尾后 pad(=0)
+ce = nn.CrossEntropyLoss(ignore_index=0)
+loss = ce(logits.reshape(-1, V), target.reshape(-1))
+print("序列 CE:", round(float(loss), 4))
+print("pad 位置被忽略，只有真实词参与平均")
+''',
+),
+
+# ---------------- nn·CNN 进阶 ----------------
+dict(
+    title="nn.ConvTranspose2d（上采样卷积）",
+    keys=["convtranspose2d", "convtranspose", "deconv", "nn.ConvTranspose2d", "转置卷积"],
+    cat="nn·CNN 进阶",
+    desc=("可学习的『放大』运算，解码器/U-Net/生成器常用。前向尺寸是 Conv2d 的反向："
+          "kernel=4, stride=2, padding=1 会把边长翻倍。别叫它 deconv，它没有解卷积的数学意义。"),
+    params=[
+        ("in_channels/out_channels", "输入/输出通道数"),
+        ("kernel_size, stride, padding", "配合公式决定输出边长"),
+        ("output_padding", "额外补的一点点，仅用于凑整除的尺寸"),
+    ],
+    notes=[
+        "公式: out = (H-1)*stride - 2*pad + dilation*(k-1) + output_padding + 1。",
+        "想精确上采样 2 倍：k=4,s=2,p=1；上采样最近邻插值也可但不可学。",
+    ],
+    example='''
+import torch, torch.nn as nn
+up = nn.ConvTranspose2d(3, 3, kernel_size=4, stride=2, padding=1)
+x = torch.randn(1, 3, 8, 8)
+y = up(x)
+print("ConvTranspose2d 输出:", tuple(y.shape))        # (1,3,16,16)
+print("手算 8→16:", (8 - 1) * 2 - 2 * 1 + (4 - 1) + 0 + 1)
+''',
+),
+
+dict(
+    title="F.interpolate（插值缩放特征图）",
+    keys=["interpolate", "upsample", "F.interpolate", "插值", "resize feature"],
+    cat="nn·CNN 进阶",
+    desc=("把特征图放大/缩小到指定尺寸。mode: bilinear(双线性)带 align_corners，"
+          "nearest(最近邻)常用于分割。只做插值、无参数可学。"),
+    params=[
+        ("F.interpolate(x, size=(h,w), mode=...)", "缩放到精确尺寸"),
+        ("F.interpolate(x, scale_factor=2, ...)", "按倍数缩放"),
+        ("align_corners", "bilinear 必须显式给，True/False 影响角点对齐"),
+    ],
+    notes=[
+        "新 torch 里 size 和 scale_factor 二选一，不能同时给。",
+        "nearest 不需要 align_corners；bilinear 不传会告警/报错。",
+    ],
+    example='''
+import torch
+import torch.nn.functional as F
+x = torch.randn(1, 3, 8, 8)
+up = F.interpolate(x, size=(16, 16), mode="bilinear", align_corners=False)
+print("bilinear →(16,16):", tuple(up.shape))
+nn_up = F.interpolate(x, scale_factor=2, mode="nearest")
+print("nearest ×2:", tuple(nn_up.shape))
+down = F.interpolate(x, scale_factor=0.5, mode="bilinear", align_corners=False)
+print("缩小一半:", tuple(down.shape))
+''',
+),
+
+dict(
+    title="nn.Conv1d / Conv3d",
+    keys=["conv1d", "conv3d", "nn.Conv1d", "nn.Conv3d", "一维卷积", "三维卷积"],
+    cat="nn·CNN 进阶",
+    desc=("Conv1d 沿长度维卷积(文本/时序/心跳)，输入 (B, C, L)；Conv3d 沿 D,H,W 卷积(视频/体素)，"
+          "输入 (B, C, D, H, W)。维度规则和 Conv2d 一致，只是少/多一个空间维。"),
+    params=[
+        ("Conv1d(in, out, k)", "输入 (B, C, L)，在 L 上滑窗"),
+        ("Conv3d(in, out, k)", "输入 (B, C, D, H, W)，在 D,H,W 上滑窗"),
+        ("输出长度公式", "L' = (L + 2*pad - dilation*(k-1) - 1)//stride + 1"),
+    ],
+    notes=[
+        "文本里常见的 Ngram 卷积就是 Conv1d（把 embedding 当通道或当长度维）。",
+        "维度是从『通道维之后』数的，别和 batch 弄混。",
+    ],
+    example='''
+import torch, torch.nn as nn
+c1 = nn.Conv1d(in_channels=3, out_channels=6, kernel_size=3, padding=1)
+x1 = torch.randn(2, 3, 20)
+print("Conv1d (B,C,L):", tuple(c1(x1).shape))         # (2,6,20)
+c3 = nn.Conv3d(in_channels=1, out_channels=4, kernel_size=3, padding=1)
+x3 = torch.randn(1, 1, 8, 8, 8)
+print("Conv3d (B,C,D,H,W):", tuple(c3(x3).shape))     # (1,4,8,8,8)
+''',
+),
+
+dict(
+    title="Conv 的 groups / dilation（深度可分离 / 空洞卷积）",
+    keys=["groups", "depthwise", "pointwise", "dilation", "空洞卷积", "separable", "grouped conv"],
+    cat="nn·CNN 进阶",
+    desc=("groups 把通道分组各卷各的：groups=in_ch 就是 depthwise 逐通道卷积，再配 1x1 pointwise "
+          "= MobileNet 的深度可分离卷积(省参数)。dilation 让卷积核中间隔点取像素=空洞卷积，"
+          "不降分辨率地扩大感受野。"),
+    params=[
+        ("groups", "in_ch 与 out_ch 都须能被 groups 整除；groups=in_ch → depthwise"),
+        ("kernel_size=1", "pointwise，只在通道间混合(逐点)"),
+        ("dilation=d", "等效感受野变大：rf = (k-1)*d + 1"),
+    ],
+    notes=[
+        "depthwise 卷积核形状 (in_ch, 1, k, k)—— 每通道一个独立核。",
+        "空洞卷积常见配 dilation=2, padding=2 保持尺寸不变。",
+    ],
+    example='''
+import torch, torch.nn as nn
+x = torch.randn(1, 8, 16, 16)
+dw = nn.Conv2d(8, 8, kernel_size=3, padding=1, groups=8)   # depthwise
+print("depthwise:", tuple(dw(x).shape))                    # (1,8,16,16)
+pw = nn.Conv2d(8, 16, kernel_size=1)                       # pointwise
+print("+pointwise:", tuple(pw(dw(x)).shape))               # (1,16,16,16)
+dil = nn.Conv2d(8, 8, kernel_size=3, padding=2, dilation=2)
+print("dilation=2:", tuple(dil(x).shape))                  # (1,8,16,16)
+print("尺寸公式: (H + 2*pad - dilation*(k-1) - 1)//stride + 1 =",
+      (16 + 2 * 2 - 2 * 2 - 1) // 1 + 1)
+''',
+),
+
+# ---------------- Transformer·注意力 ----------------
+dict(
+    title="nn.MultiheadAttention",
+    keys=["multiheadattention", "nn.MultiheadAttention", "multi head", "多头注意力", "mha"],
+    cat="Transformer·注意力",
+    desc=("多头注意力。输入 Q/K/V，先各投影成 num_heads 个头做缩放点积注意力，再拼接过输出投影。"
+          "返回 (attn_output, attn_output_weights)。Q=K=V=同一张量就是 self-attention。"),
+    params=[
+        ("embed_dim, num_heads", "embed_dim 必须是 num_heads 的整数倍(每头 = embed//heads)"),
+        ("batch_first", "默认 False → 输入是 (L, B, E)；设 True 变 (B, L, E) 更直观"),
+        ("key_padding_mask", "(B, Lk) 布尔，True 的位置是 pad，不参与注意力"),
+        ("attn_mask", "(Lq, Lk) 掩码；float 用 -inf 屏蔽、bool True 表示屏蔽"),
+    ],
+    notes=[
+        "自注意力直接 mha(x, x, x)；cross-attention 是 mha(query=tgt, key=memory, value=memory)。",
+        "need_weights=False 时第二个返回值是 None，且更省(不用为权重额外算一次)。",
+        "平均头: 默认返回的权重是 (N, Lq, Lk)（已对头取平均）。",
+    ],
+    example='''
+import torch, torch.nn as nn
+torch.manual_seed(0)
+D, H, B, L = 8, 2, 2, 4
+mha = nn.MultiheadAttention(embed_dim=D, num_heads=H, batch_first=True)
+x = torch.randn(B, L, D)
+out, w = mha(x, x, x)                # self-attention
+print("输出:", tuple(out.shape))                     # (2,4,8)
+print("注意力权重(平均过头):", tuple(w.shape))        # (2,4,4)
+out2, w2 = mha(x, x, x, need_weights=False)
+print("need_weights=False:", tuple(out2.shape), "权重为", w2)
+''',
+),
+
+dict(
+    title="TransformerEncoder / TransformerEncoderLayer",
+    keys=["encoder", "transformerencoder", "transformerencoderlayer", "nn.TransformerEncoder", "编码器"],
+    cat="Transformer·注意力",
+    desc=("编码器：每层 = Self-Attention + 残差/LN + FFN，一堆 layer 叠起来。输入多少个 token "
+          "就输出多少个『看过全场上下文』的表示。双向(无因果掩码)，直接编码整个序列。"),
+    params=[
+        ("TransformerEncoderLayer(d_model, nhead, dim_feedforward)", "单层结构"),
+        ("TransformerEncoder(layer, num_layers)", "把同款 layer 叠 num_layers 层"),
+        ("batch_first / norm_first", "batch 放第一维 / 先 LN 后注意力(PreNorm)"),
+    ],
+    notes=[
+        "d_model 必须被 nhead 整除。dim_feedforward 常见 4*d_model。",
+        "叠层/残差让 encoder 越深越难训，可加 dropout 与 Norm 缓解。",
+    ],
+    example='''
+import torch, torch.nn as nn
+torch.manual_seed(0)
+B, L, D, H = 2, 5, 16, 4
+layer = nn.TransformerEncoderLayer(d_model=D, nhead=H,
+                                   dim_feedforward=64, batch_first=True)
+enc = nn.TransformerEncoder(layer, num_layers=2)
+x = torch.randn(B, L, D)
+out = enc(x)
+print("Encoder 输出:", tuple(out.shape))            # (2,5,16)
+print("参数量: %.0f" % sum(p.numel() for p in enc.parameters()))
+''',
+),
+
+dict(
+    title="TransformerDecoder / TransformerDecoderLayer",
+    keys=["decoder", "transformerdecoder", "transformerdecoderlayer", "nn.TransformerDecoder", "解码器"],
+    cat="Transformer·注意力",
+    desc=("解码器每层有两块注意力：先对『自己已生成的词』做带因果掩码的 self-attention，"
+          "再拿 encoder 的输出做 cross-attention(查源序列信息)。teacher forcing 时 tgt 直接喂整句。"),
+    params=[
+        ("decoder_layer(tgt, memory, tgt_mask, ...)", "前向要同时给目标与 encoder 的 memory"),
+        ("tgt_mask", "因果掩码，防止看未来词；解码器必备"),
+        ("memory", "encoder 输出，(B, L_src, d)，作为 cross-attention 的 K/V"),
+        ("memory_key_padding_mask", "如果源序列有 pad，要在这里一并屏蔽"),
+    ],
+    notes=[
+        "自回归生成时，训练 = teacher forcing(给真实历史)，推理 = 循环吐一个词喂回去。",
+        "只想要『最后一个位置→整句』，别忘了输出是每个位置一个向量。",
+    ],
+    example='''
+import torch, torch.nn as nn
+torch.manual_seed(0)
+B, Lt, Lm, D, H = 2, 4, 6, 16, 4
+layer = nn.TransformerDecoderLayer(d_model=D, nhead=H,
+                                   dim_feedforward=64, batch_first=True)
+dec = nn.TransformerDecoder(layer, num_layers=2)
+tgt = torch.randn(B, Lt, D)          # 目标序列(已 shift)
+memory = torch.randn(B, Lm, D)       # encoder 记忆
+causal = torch.triu(torch.ones(Lt, Lt, dtype=torch.bool), diagonal=1)
+out = dec(tgt, memory, tgt_mask=causal)
+print("Decoder 输出:", tuple(out.shape))            # (2,4,16)
+''',
+),
+
+dict(
+    title="nn.Transformer（编码器-解码器整机）",
+    keys=["transformer", "nn.Transformer", "整机", "seq2seq transformer"],
+    cat="Transformer·注意力",
+    desc=("一次搭好 Encoder+Decoder 的完整 Transformer(机器翻译/seq2seq)。内部由若干个 "
+          "TransformerEncoderLayer 和 TransformerDecoderLayer 组成。大多数任务会自己拼而不是直接用整机。"),
+    params=[
+        ("d_model / nhead", "隐层维与头数"),
+        ("num_encoder_layers / num_decoder_layers", "两侧各叠几层"),
+        ("dim_feedforward", "FFN 隐层大小"),
+        ("forward(src, tgt, ...)", "src=源序列，tgt=已 shift 的目标序列"),
+    ],
+    notes=[
+        "批量解码时 tgt_mask 因果掩码要自己给，否则会看到未来。",
+        "改结构(如不同层数/激活)比照手写更灵活；整机适合快速原型。",
+    ],
+    example='''
+import torch, torch.nn as nn
+torch.manual_seed(0)
+model = nn.Transformer(d_model=16, nhead=4,
+                       num_encoder_layers=2, num_decoder_layers=2,
+                       dim_feedforward=64, batch_first=True)
+src = torch.randn(2, 5, 16)        # 源
+tgt = torch.randn(2, 4, 16)        # 目标(已 shift)
+out = model(src, tgt)
+print("整机输出:", tuple(out.shape))              # (2,4,16)
+''',
+),
+
+dict(
+    title="attention mask（attn_mask / key_padding_mask 语义）",
+    keys=["attn_mask", "key_padding_mask", "padding_mask", "src_key_padding_mask", "causal mask", "注意力掩码", "padding 掩码"],
+    cat="Transformer·注意力",
+    desc=("掩码告诉注意力『别去看某些位置』。两种：key_padding_mask 屏蔽 pad token(所有人"
+          "都不能 attend 它)；attn_mask 屏蔽特定 (i,j) 配对(因果时是 j>i 全屏蔽)。"
+          "bool True 或 float -inf 都表示『屏蔽』——softmax 后权重变 0。"),
+    params=[
+        ("key_padding_mask (B, Lk) bool", "True = 该 key 位置是 padding"),
+        ("attn_mask bool (Lq, Lk)", "True = 禁止 (i,j) 配对"),
+        ("attn_mask float (Lq, Lk)", "-inf = 禁止(加在 scores 上被 softmax 归零)"),
+        ("放在哪", "在 softmax 之前生效 → 屏蔽位置权重精确为 0"),
+    ],
+    notes=[
+        "float 版填 -inf 而不是 0：0 只是不加分，仍会被 attend；-inf 才归零。",
+        "Encoder 只关心 pad → 给 key_padding_mask；Decoder 还要 causal → 再给 attn_mask。",
+        "给错形状(如 (L,L) 当 (B,L))是最常见的报错来源。",
+    ],
+    example='''
+import torch, torch.nn as nn
+torch.manual_seed(0)
+B, L, D, H = 1, 4, 8, 2
+mha = nn.MultiheadAttention(D, H, batch_first=True)
+x = torch.randn(B, L, D)
+
+kpm = torch.zeros(B, L, dtype=torch.bool)
+kpm[0, 2:] = True                       # key 位置 2,3 是 pad
+out, w = mha(x, x, x, key_padding_mask=kpm)
+print("key_padding_mask 后 query0 权重:", w[0, 0].tolist())   # 位置2,3≈0
+
+inf = torch.full((L, L), float('-inf'))
+causal = torch.triu(inf, diagonal=1)    # 右上角 -inf → 只能看自己及以前
+_, w2 = mha(x, x, x, attn_mask=causal)
+print("因果掩码后 query0 权重:", w2[0, 0].tolist())          # 只有 key0≈1
+''',
+),
+
+dict(
+    title="PositionalEncoding（手写正弦位置编码）",
+    keys=["positional", "pos_encoding", "positionalencoding", "位置编码", "position embedding", "pe"],
+    cat="Transformer·注意力",
+    desc=("Transformer 没有顺序概念，要靠给每个 token 加位置向量才知道先后。正弦位置编码："
+          "偶数维用 sin、奇数维用 cos，不同频率让相邻位置向量接近、远位置可分辨。直接加到 embedding 上。"),
+    params=[
+        ("pe[:, 0::2] = sin(pos * freq)", "偶数维用 sin"),
+        ("pe[:, 1::2] = cos(pos * freq)", "奇数维用 cos"),
+        ("freq 衰减", "频率 = base^(-2i/D)，base=10000"),
+        ("使用", "x = x + pe[:L]  让 batch 也广播(加在第 0 维前)"),
+    ],
+    notes=[
+        "长度 L 超过预计算范围就自己延长：pe 只取决于 L、D，可运行时现算。",
+        "D 取偶数(要能整除 2)；加的时候要 unsqueeze 出 batch 维或索引到 L。",
+    ],
+    example='''
+import torch, math
+def pos_encoding(L, D, base=10000.0):
+    """返回 (L, D) 的正弦位置编码。"""
+    pe = torch.zeros(L, D)
+    pos = torch.arange(L, dtype=torch.float).unsqueeze(1)      # (L,1)
+    freqs = torch.arange(0, D, 2).float()
+    div = torch.exp(freqs * (-math.log(base) / D))             # base^(-2i/D)
+    pe[:, 0::2] = torch.sin(pos * div)
+    pe[:, 1::2] = torch.cos(pos * div)
+    return pe
+
+pe = pos_encoding(L=10, D=8)          # D 要偶数
+print("形状:", tuple(pe.shape))
+print("token0 编码:", [round(v, 3) for v in pe[0].tolist()])
+print("每行范数相同:", [round(float(v), 3) for v in pe.norm(dim=-1)])
+# 用法: x = x + pe[:x.size(1)].unsqueeze(0)   # 广播到 (B,L,D)
+''',
+),
+
+# ---------------- 序列·RNN ----------------
+dict(
+    title="nn.RNN / nn.GRU / nn.LSTM",
+    keys=["lstm", "gru", "rnn", "nn.LSTM", "nn.GRU", "nn.RNN", "循环网络", "hidden state"],
+    cat="序列·RNN",
+    desc=("处理序列的循环网络。LSTM 带记忆细胞(cell)，GRU 简化版，RNN 最朴素。"
+          "输入 batch_first=True 时是 (B, L, input)，输出 output(每步隐状态) 和末态 h_n/c_n。"),
+    params=[
+        ("input_size / hidden_size", "每个输入向量维 / 隐状态维"),
+        ("num_layers", "堆几层；h_n 第一维 = num_layers*方向数"),
+        ("bidirectional", "True 双向，output 最后维翻倍为 2*hidden"),
+        ("batch_first", "True → 输入 (B, L, input)，输出 (B, L, hidden)"),
+    ],
+    notes=[
+        "输出 output 是每个时间步的隐状态；末态 h_n = output 的最后一时间步(单向一层时)。",
+        "h_n/c_n 形状 (num_layers*dir, B, hidden)，要取最后一层用 h_n[-1]。",
+        "忘了 batch_first → 输入写成 (L, B, d) 是最常见翻车点。",
+    ],
+    example='''
+import torch, torch.nn as nn
+torch.manual_seed(0)
+B, L, in_d, hid = 3, 5, 4, 8
+x = torch.randn(B, L, in_d)
+
+lstm = nn.LSTM(input_size=in_d, hidden_size=hid, num_layers=1, batch_first=True)
+out, (h, c) = lstm(x)
+print("LSTM output:", tuple(out.shape))                    # (3,5,8)
+print("h_n:", tuple(h.shape), "c_n:", tuple(c.shape))      # (1,3,8)
+print("末态==output最后一步:", torch.allclose(out[:, -1, :], h[-1]).item())
+
+gru = nn.GRU(in_d, hid, batch_first=True)
+_, h_g = gru(x)
+print("GRU 只有 h:", tuple(h_g.shape))
+
+bi = nn.LSTM(in_d, hid, batch_first=True, bidirectional=True)
+out_b, (h_b, _) = bi(x)
+print("双向 output:", tuple(out_b.shape), "| h:", tuple(h_b.shape))  # (3,5,16),(2,3,8)
+''',
+),
+
+dict(
+    title="pad_sequence（变长序列补齐）",
+    keys=["pad_sequence", "padding", "变长补齐", "pad"],
+    cat="序列·RNN",
+    desc=("把一堆长度不一的张量按最长那个在尾部补 padding_value，叠成 (B, L, ...) 一个 batch。"
+          "文本/变长序列 batch 的标配，配合忽略 pad 的 loss(ignore_index) 使用。"),
+    params=[
+        ("pad_sequence(seqs, batch_first=True)", "seqs 是 list of (L_i, ...) 张量"),
+        ("padding_value", "尾部填的值；文本一般填 <pad> 的 id(0)"),
+        ("返回", "同长张量，最长者的长度为其长度维"),
+    ],
+    notes=[
+        "pad 都在『尾部』，右侧补；跟 Transformer 一起时记得做 key_padding_mask。",
+        "RNN 里最好用 pack_padded_sequence，别直接喂 pad 过长的输入浪费算力。",
+    ],
+    example='''
+import torch
+from torch.nn.utils.rnn import pad_sequence
+a = torch.tensor([1, 2, 3])        # 3 词
+b = torch.tensor([4, 5])           # 2 词
+c = torch.tensor([6])              # 1 词
+padded = pad_sequence([a, b, c], batch_first=True, padding_value=0)
+print("pad 后形状:", tuple(padded.shape))       # (3,3)
+print(padded)
+''',
+),
+
+dict(
+    title="pack_padded_sequence / pad_packed_sequence",
+    keys=["pack_padded_sequence", "pad_packed_sequence", "packed", "pack sequence", "PackedSequence", "变长 RNN"],
+    cat="序列·RNN",
+    desc=("变长序列喂 RNN 前先 pack 起来，让 RNN 只对『真实 token』算、跳过 pad 位置——"
+          "更快也更省显存，末态不受 pad 干扰。跑完再 pad_packed_sequence 解回定长张量。"),
+    params=[
+        ("pack_padded_sequence(x, lengths, batch_first, enforce_sorted)", "lengths=每个样本真实长度"),
+        ("enforce_sorted=True", "要求 lengths 降序(自己先按长排)"),
+        ("RNN 直接吃 PackedSequence", "把 packed 传给 LSTM 即可"),
+        ("pad_packed_sequence(out)", "解回 (B, max_len, hidden) + 真实 lengths"),
+    ],
+    notes=[
+        "lengths 必须按样本真实长度降序给(除非 enforce_sorted=False 让它内部排)。",
+        "pack 只省 pad 的算力，不改变末态 h_n 含义(它就是最后一个真实 token 后的隐状态)。",
+    ],
+    example='''
+import torch, torch.nn as nn
+from torch.nn.utils.rnn import (pack_padded_sequence, pad_packed_sequence,
+                                pad_sequence)
+torch.manual_seed(0)
+B, in_d, hid = 3, 4, 8
+seqs = [torch.randn(5, in_d), torch.randn(3, in_d), torch.randn(2, in_d)]
+lens = torch.tensor([len(s) for s in seqs])        # 已降序 [5,3,2]
+padded = pad_sequence(seqs, batch_first=True)      # (3,5,4)
+packed = pack_padded_sequence(padded, lens, batch_first=True, enforce_sorted=True)
+lstm = nn.LSTM(in_d, hid, batch_first=True)
+out_packed, (h, c) = lstm(packed)
+print("packed 内真实 token 数×hidden:", tuple(out_packed.data.shape))
+out, lengths = pad_packed_sequence(out_packed, batch_first=True)
+print("解开后:", tuple(out.shape), "各长度:", lengths.tolist())
+''',
+),
+
+# ---------------- 训练·进阶 ----------------
+dict(
+    title="torch.save / torch.load（存权重 / 存 checkpoint）",
+    keys=["save", "load", "torch.save", "torch.load", "checkpoint", "存模型", "继续训练"],
+    cat="训练·进阶",
+    desc=("保存模型。推荐只存 model.state_dict()(纯张量，安全)；要继续训练就把模型、优化器、"
+          "epoch、最佳分数打成一个 dict 存。torch.save(目标, 路径) / torch.load(路径)。"),
+    params=[
+        ("torch.save(m.state_dict(), path)", "只存权重(官方推荐，轻便)"),
+        ("torch.load(path)", "读回 dict；再 load_state_dict 进结构相同的模型"),
+        ("checkpoint dict", "存 {'model':..., 'opt':..., 'epoch':..., 'best':...}"),
+    ],
+    notes=[
+        "load_state_dict 报 missing/unexpected key = 模型结构对不上(如类别数变)。",
+        "恢复训练：重建模型/优化器后 load，再跳到保存的 epoch 继续。",
+    ],
+    example='''
+import os, torch, torch.nn as nn
+m = nn.Linear(4, 2)
+path = "/tmp/torch_kb_model.pt"
+torch.save(m.state_dict(), path)
+
+m2 = nn.Linear(4, 2)
+m2.load_state_dict(torch.load(path))
+print("载入后权重一致:", torch.equal(m.weight, m2.weight).item())
+
+ckpt = {"model": m.state_dict(),
+        "opt": torch.optim.Adam(m.parameters()).state_dict(),
+        "epoch": 10}
+torch.save(ckpt, "/tmp/torch_kb_ckpt.pt")
+print("checkpoint 键:", list(torch.load("/tmp/torch_kb_ckpt.pt").keys()))
+os.remove(path); os.remove("/tmp/torch_kb_ckpt.pt")
+''',
+),
+
+dict(
+    title="微调冻结层（requires_grad=False + 只更新部分参数）",
+    keys=["freeze", "requires_grad=False", "冻结", "fine tune", "微调", "只训头"],
+    cat="训练·进阶",
+    desc=("迁移学习/微调时，先把预训练 backbone 冻结(requires_grad=False)，只训新加的分类头。"
+          "方法是：遍历 backbone.parameters() 关梯度，再把『只含 requires_grad=True 的参数』喂给优化器。"),
+    params=[
+        ("p.requires_grad = False", "冻结该参数：反向传播不更新它"),
+        ("过滤参数给 optimizer", "opt = Adam([p for p in model.parameters() if p.requires_grad])"),
+        ("model.eval()", "冻结的 BN/Dropout 层推理时也走 eval"),
+    ],
+    notes=[
+        "光设 requires_grad 还不够——优化器里必须过滤，否则照样更新。",
+        "想只冻结 backbone 但不动它的 BN 统计？冻结层在 eval 下跑 forward 更干净。",
+    ],
+    example='''
+import torch, torch.nn as nn
+backbone = nn.Sequential(nn.Linear(16, 8), nn.ReLU(), nn.Linear(8, 4))
+head = nn.Linear(4, 2)
+
+for p in backbone.parameters():
+    p.requires_grad = False                     # 冻结 backbone
+
+def trainable(module):
+    return [p for p in module.parameters() if p.requires_grad]
+
+opt = torch.optim.Adam(trainable(head), lr=1e-3)
+print("backbone 可训练参数:", sum(p.numel() for p in trainable(backbone)))
+print("head 可训练参数:", sum(p.numel() for p in trainable(head)))
+
+for p in backbone.parameters():                 # 解冻
+    p.requires_grad = True
+print("解冻后 backbone 可训练:", sum(p.numel() for p in backbone.parameters()))
+''',
+),
+
+dict(
+    title="AMP 混合精度（autocast + GradScaler）",
+    keys=["amp", "autocast", "GradScaler", "fp16", "混合精度", "mixed precision", "scale_loss"],
+    cat="训练·进阶",
+    desc=("前向用 FP16 省一半显存并加快，但梯度可能下溢为 0——所以用 GradScaler 先把 loss "
+          "放大再 backward，step 前缩回去。写法固定四步：autocast 包前向 → scaler.scale(loss)"
+          ".backward() → scaler.step(opt) → scaler.update()。"),
+    params=[
+        ("with torch.cuda.amp.autocast():", "该块内的前向用 FP16 自动混合精度"),
+        ("scaler.scale(loss).backward()", "loss 乘系数再反传，防梯度下溢"),
+        ("scaler.step(opt)", "内部判断是否要跳过/缩小梯度后更新"),
+        ("scaler.update()", "每个 batch 末尾调整系数"),
+    ],
+    notes=[
+        "必须全程用 scaler，不能只开 autocast 不 scale(梯度仍可能下溢)。",
+        "新版本推荐 import torch.amp，写 torch.amp.autocast('cuda')；老 API 也兼容。",
+    ],
+    example='''
+import torch, torch.nn as nn
+use_cuda = torch.cuda.is_available()
+print("cuda 可用:", use_cuda)
+if use_cuda:
+    model = nn.Linear(4, 2).cuda()
+    opt = torch.optim.Adam(model.parameters(), lr=1e-3)
+    scaler = torch.cuda.amp.GradScaler()
+    x = torch.randn(8, 4).cuda()
+    for _ in range(2):
+        opt.zero_grad()
+        with torch.cuda.amp.autocast():        # FP16 前向
+            loss = model(x).pow(2).mean()
+        scaler.scale(loss).backward()
+        scaler.step(opt)
+        scaler.update()
+    print("AMP 训练两步完成")
+else:
+    print("本机无 GPU，跳过执行；有卡时写法如上")
+''',
+),
+
+dict(
+    title="梯度累积（大 batch 装不下时）",
+    keys=["gradient accumulation", "accumulate", "梯度累积", "大 batch", "accum"],
+    cat="训练·进阶",
+    desc=("显存装不下大 batch，就把一个大 batch 拆成几个 micro-batch 依次 backward 累加梯度，"
+          "攒够 ACC 步再 optimizer.step()。等效 batch = micro_batch × ACC。"),
+    params=[
+        ("每 micro-batch 的 loss 除以 ACC", "让累加后的梯度尺度与一次大 batch 相当"),
+        ("每 ACC 步才 step + zero_grad", "平时只 backward 不 step，梯度自动累加在 .grad"),
+    ],
+    notes=[
+        "忘了把 loss/ACC → 有效学习率被放大 ACC 倍，训练会不稳。",
+        "BN/Dropout 等对 batch 敏感层的效果与大 batch 并不完全等价。",
+    ],
+    example='''
+import torch, torch.nn as nn
+torch.manual_seed(0)
+model = nn.Linear(4, 1)
+opt = torch.optim.Adam(model.parameters(), lr=1e-3)
+data = torch.randn(32, 4)
+ACC = 4                       # 等效 batch = micro_batch * 4 = 16
+opt.zero_grad()
+for i in range(8):
+    loss = (model(data[i * 4:(i + 1) * 4]) ** 2).mean() / ACC
+    loss.backward()
+    if (i + 1) % ACC == 0:
+        opt.step()
+        opt.zero_grad()
+print("每 4 个 micro-batch 才 step 一次")
+''',
+),
+
+dict(
+    title="SummaryWriter（tensorboard）",
+    keys=["tensorboard", "summarywriter", "add_scalar", "add_image", "add_graph"],
+    cat="训练·进阶",
+    desc=("把 loss/acc/曲线/图像/计算图写进日志，浏览器里看训练过程。"
+          "每个 epoch 记一条 scalar；图像/直方图也可随时 add。"),
+    params=[
+        ("SummaryWriter(log_dir)", "创建日志目录"),
+        ("add_scalar(tag, value, step)", "记一条曲线，如 loss/train"),
+        ("add_image(tag, tensor)", "记一张图(记得转 CHW, 0-1)"),
+        ("add_graph(model, input)", "可视化计算图(可能较慢)"),
+    ],
+    notes=[
+        "启动命令: tensorboard --logdir=日志目录，再开 localhost:6006。",
+        "同名 tag 会把不同 run 叠一起比较，可用不同 log_dir 区分。",
+    ],
+    example='''
+import torch
+try:
+    from torch.utils.tensorboard import SummaryWriter
+    w = SummaryWriter(log_dir="/tmp/tb_demo")
+    for step in range(5):
+        w.add_scalar("loss/train", 1.0 / (step + 1), step)
+        w.add_scalar("acc/train", 0.2 * (step + 1), step)
+    w.close()
+    print("已写入 /tmp/tb_demo；查看: tensorboard --logdir=/tmp/tb_demo")
+except ImportError:
+    print("本机没装 tensorboard: pip install tensorboard")
+''',
+),
+
+dict(
+    title="nn.init（权重初始化）",
+    keys=["nn.init", "init", "xavier", "kaiming", "he init", "weight init", "初始化", "torch.nn.init"],
+    cat="训练·进阶",
+    desc=("手写层或想要特定初始化时用 nn.init：xavier 适配 sigmoid/tanh，kaiming(He) 适配 ReLU 系，"
+          "normal_ 按给定均值/方差。不 init 的话大多数层有默认初始化，但显式做可复现/可控。"),
+    params=[
+        ("nn.init.xavier_uniform_(w)", "经典：fan_in/fan_out 取平均，适用 tanh/sigmoid"),
+        ("nn.init.kaiming_normal_(w, a=..., mode='fan_in')", "ReLU 系推荐(He init)"),
+        ("nn.init.normal_(t, 0, 0.02)", "自定义高斯；还有 zeros_/ones_/constant_"),
+    ],
+    notes=[
+        "初始化太大会让深层输出爆炸/梯度消失，太小则信号衰减，量级要匹配激活。",
+        "Conv/Linear 都自带合理默认；只在特殊层(如自己写的模块)才必须显式 init。",
+    ],
+    example='''
+import torch, torch.nn as nn
+lin = nn.Linear(8, 8)
+nn.init.xavier_uniform_(lin.weight)
+nn.init.zeros_(lin.bias)
+print("xavier 后 |W| 量级:", round(float(lin.weight.abs().mean()), 4))
+
+conv = nn.Conv2d(3, 6, 3)
+nn.init.kaiming_normal_(conv.weight, nonlinearity="relu")
+print("kaiming 后 std:", round(float(conv.weight.std()), 4))
+''',
+),
+
+# ---------------- 数据·进阶 ----------------
+dict(
+    title="random_split / Subset（切分数据集）",
+    keys=["random_split", "subset", "split dataset", "切分数据集", "train_test_split"],
+    cat="数据·进阶",
+    desc=("从已建好的 Dataset 里按比例/个数切出训练、验证。random_split(ds, [80,20]) 返回两个子集；"
+          "Subset 手动按下标列表取一部分。"),
+    params=[
+        ("random_split(ds, lengths)", "lengths 是各份的大小或比例，如 [80, 20]"),
+        ("Subset(ds, indices)", "给定下标列表取子集"),
+        ("返回值仍是 Dataset", "可直接丢给 DataLoader"),
+    ],
+    notes=[
+        "random_split 用随机生成器切；想复现先 manual_seed。",
+        "真正打乱顺序靠 DataLoader 的 shuffle=True，别在 Subset 里自己乱序。",
+    ],
+    example='''
+import torch
+from torch.utils.data import TensorDataset, random_split, Subset
+X = torch.randn(100, 4); y = torch.randint(0, 3, (100,))
+ds = TensorDataset(X, y)
+tr, va = random_split(ds, [80, 20])
+print("random_split:", len(tr), len(va))
+sub = Subset(ds, list(range(50)))
+print("Subset 前50个:", len(sub))
+''',
+),
+
+dict(
+    title="collate_fn（变长文本自定义打包）",
+    keys=["collate_fn", "collate", "变长 batch", "pad 到 batch"],
+    cat="数据·进阶",
+    desc=("DataLoader 默认把一批样本直接 stack 成张量——变长文本会炸。自定义 collate_fn 在拼 batch "
+          "那一刻用 pad_sequence 补成定长再返回，是文本/图像描述数据管线的关键一环。"),
+    params=[
+        ("collate_fn(batch)", "输入是本 batch 的 (样本, 标签) 列表，返回要喂给模型的张量"),
+        ("zip(*batch)", "把样本们和标签们分开"),
+        ("pad_sequence + ignore_index", "补 <pad> 对齐，算 loss 时忽略"),
+    ],
+    notes=[
+        "collate_fn 在每次取 batch 时被调用，是放 padding 的正确位置。",
+        "除了文本，混合类型(图+文本+掩码)也常在 collate_fn 里各自处理。",
+    ],
+    example='''
+import torch
+from torch.utils.data import Dataset, DataLoader
+from torch.nn.utils.rnn import pad_sequence
+
+class VarCap(Dataset):
+    def __len__(self): return 4
+    def __getitem__(self, i):
+        return torch.randint(1, 20, (i + 1,)), torch.tensor(i)  # 长 1,2,3,4
+
+def pad_collate(batch):
+    ids, labels = zip(*batch)
+    ids = pad_sequence(ids, batch_first=True, padding_value=0)
+    return ids, torch.stack(labels)
+
+loader = DataLoader(VarCap(), batch_size=4, collate_fn=pad_collate)
+x, y = next(iter(loader))
+print("一个 batch 已补 pad:", tuple(x.shape), "标签:", y.tolist())
+''',
+),
+
 # __KB_END__
 ]
