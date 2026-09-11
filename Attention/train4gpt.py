@@ -27,6 +27,8 @@ def train_model(model, epochs, train_loader,learning_rate, device):
         avg_loss = total_loss / len(train_loader)
         print(f"Epoch [{epoch+1}/{epochs}], Loss: {avg_loss:.4f}")
 
+    torch.save(model.state_dict(), "gpt_model_10.pth")
+
 if __name__ == "__main__":
     # Hyperparameters
     max_seq_len = 32
@@ -39,7 +41,8 @@ if __name__ == "__main__":
     learning_rate = 1e-4
 
     # Prepare dataset and dataloader
-    dataset = ShakespeareDataset("Attention/data/shakespeare.txt", max_seq_len)
+    data_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "shakespeare.txt")
+    dataset = ShakespeareDataset(data_path, max_seq_len)
 
     vocab_size = dataset.chars  # Adjust based on dataset
     train_loader = DataLoader(dataset, batch_size=batch_size, shuffle=True)

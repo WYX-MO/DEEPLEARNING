@@ -82,7 +82,7 @@ class MultiHeadAttention(nn.Module):
         # Compute attention scores
         attention_scores = torch.matmul(Q, K.transpose(-2, -1)) / (K.size(-1) ** 0.5)  # [batch_size, num_heads, seq
         if mask is not None:
-            attention_scores = attention_scores.masked_fill(mask == 0, float('-inf'))
+            attention_scores = attention_scores.masked_fill(mask != 0, float('-inf'))
         attention_scores = F.softmax(attention_scores, dim=-1)  # [batch_size, num_heads, seq_len, seq_len]                                                            
         attention_scores = self.attn_dropout(attention_scores)
         attention = torch.matmul(attention_scores, V)  # [batch_size, num_heads, seq_len, d_k]
