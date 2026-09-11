@@ -8,7 +8,7 @@
 整理attention实验，撰写报告
 
 move：
-1. 完成minigpt训练和框架
+1. 完成minigpt训练和框架 #
 2. 开始gpt视频
 3. 生成网络详细（gan，vae，diffusion）
     3-2 自监督学习

@@ -1,3 +1,7 @@
 id,commit,model,augmentation,lr,batch_size,epochs,train_acc,test_acc,note
-Exp001,20ada08,Vit,horizontal flip+random crop,0.0001,64,10,94.59%,76.74%,obviously the model is overfitting;while the accuricy of train data is keeping grouth;the test acc is stoped
+Exp001-imageClassification,20ada08,Vit,horizontal flip+random crop,0.0001,64,10,94.59%,76.74%,obviously the model is overfitting;while the accuricy of train data is keeping grouth;the test acc is stoped
 Exp002,9460698,Vit,all,0.0001,64,50,none,83.10%,add some regularzation and more epochs;260906
+Exp003-imageCaption,none,Vit+decoder,
+Exp004,none,Vit+decoder,
+Exp005,none,
+Exp006-Minigpt,
