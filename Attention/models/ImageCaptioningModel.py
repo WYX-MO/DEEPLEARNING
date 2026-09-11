@@ -6,7 +6,7 @@ import sys
 import os 
 sys.path.insert(0,os.path.join( os.path.dirname(os.path.abspath(__file__)),'..','..'))
 from Attention.models.Vit import VisionTransformer
-from Attention.models.text_embeding import TextEmbedding
+from Attention.models.text_embedding import TextEmbedding
 from Attention.models.Decoder_block import DecoderBlock
 ##from Attention.models.PositionalEncoding import PositionalEncoding
 class ImageCaptioningModel(nn.Module):

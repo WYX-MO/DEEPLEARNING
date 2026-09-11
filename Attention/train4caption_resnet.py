@@ -23,7 +23,7 @@ _THIS = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(_THIS))                 # 父目录，让 import Attention 生效
 
 from Attention.datasets.Flickr8k import Flickr8kCaptions, get_vocab_size, CAPTION_MAX_LEN
-from Attention.models.text_embeding import TextEmbedding
+from Attention.models.text_embedding import TextEmbedding
 from Attention.models.Decoder_block import DecoderBlock
 # 复用解码/BLEU 工具(它们只要求 model.forward(images, captions) -> logits)
 from train4caption import _greedy_decode, eval_bleu, SOS_ID, EOS_ID, PAD_ID

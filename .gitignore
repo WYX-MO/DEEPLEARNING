@@ -17,3 +17,9 @@ __pycache__/
 
 # 数据集（大文件，不纳入版本控制，可随时重新下载）
 CNN/data/
+
+# CS231n 课程资料（大文件/第三方，可重新下载；只跟踪作业代码）
+cs321N/lectures/
+cs321N/notes/
+cs321N/assignments/*.zip
+cs321N/assignments/assignment3/dino.gif

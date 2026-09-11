@@ -1,3 +1,4 @@
+#cifar10.py
 import os
 import torch
 import numpy as np

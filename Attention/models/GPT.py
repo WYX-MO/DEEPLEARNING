@@ -1,0 +1,45 @@
+#GPT.py
+
+import torch
+import torch.nn as nn
+import os
+import sys
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','..'))
+from Attention.models.GPT_block import GPTBlock
+from Attention.models.text_embedding import TextEmbedding
+class GPT(nn.Module):
+    def __init__(self, vocab_size,max_seq_len,d_model, num_heads, d_ff, num_layers):
+        super().__init__()
+        self.vocab_size = vocab_size
+        self.max_seq_len = max_seq_len
+        self.text_embeding = TextEmbedding(vocab_size, d_model, max_seq_len)
+        self.layers = nn.ModuleList([
+            GPTBlock(d_model, num_heads, d_ff) for _ in range(num_layers)
+        ])
+        self.norm = nn.LayerNorm(d_model)
+        self.lm_head = nn.Linear(d_model, vocab_size, bias=False)
+
+    def forward(self, x, mask=None):
+        B,T = x.shape
+        x = self.text_embeding(x)
+        mask = torch.triu(
+            torch.ones(T, T, device=x.device), diagonal=1
+        )
+        for layer in self.layers:
+            x = layer(x, mask)
+        x = self.norm(x)
+        return self.lm_head(x)  # [batch_size, seq_len, vocab_size]
+
+if __name__ == "__main__":
+    model = GPT(
+        vocab_size=10000,
+        max_seq_len=64,
+        d_model=192,
+        num_heads=4,
+        d_ff=768,
+        num_layers=6
+    )
+    x = torch.randint(0, 10000, (2, 32))
+    output = model(x)
+    print(x.shape)
+    print(output.shape)
