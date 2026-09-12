@@ -1,5 +1,5 @@
 # datasets/Flickr8k.py
-# 面向 Attention/models/ImageCaptioningModel 的 Flickr8k 图像描述数据集。
+# 面向 Attention/caption/models/ImageCaptioningModel 的 Flickr8k 图像描述数据集。
 #   __getitem__ 返回 (image_tensor, caption_id_tensor)，其中 caption 定长 CAPTION_MAX_LEN，
 #   满足 train.py 里 cap[:, :-1] / cap[:, 1:] 的 teacher-forcing 切法；
 #   PAD 固定在 0，与 train.py 的 CrossEntropyLoss(ignore_index=PAD_ID) 一致。
@@ -25,7 +25,7 @@ TRAIN_AUG = False         # 默认不增广（caption 有空间/颜色语义）�
 _SPECIAL = ['<pad>', '<sos>', '<eos>', '<unk>']
 
 # ---- 数据文件定位 ----
-_BASE = Path(__file__).resolve().parent.parent          # .../Attention
+_BASE = Path(__file__).resolve().parents[2]              # .../Attention（caption/datasets 往上三层）
 DATA_DIR = _BASE / 'data'
 IMAGE_DIR = DATA_DIR / 'Flicker8k_Dataset'
 CAPTION_FILE = DATA_DIR / 'Flickr8k.token.txt'

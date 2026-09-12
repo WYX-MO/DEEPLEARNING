@@ -4,10 +4,10 @@ import torch.nn as nn
 import torch
 import sys
 import os 
-sys.path.insert(0,os.path.join( os.path.dirname(os.path.abspath(__file__)),'..','..'))
-from Attention.models.Vit import VisionTransformer
-from Attention.models.text_embedding import TextEmbedding
-from Attention.models.Decoder_block import DecoderBlock
+sys.path.insert(0,os.path.join( os.path.dirname(os.path.abspath(__file__)),'..','..','..'))
+from Attention.common.vision.Vit import VisionTransformer
+from Attention.common.text_embedding import TextEmbedding
+from Attention.caption.models.Decoder_block import DecoderBlock
 ##from Attention.models.PositionalEncoding import PositionalEncoding
 class ImageCaptioningModel(nn.Module):
     def __init__(self, vocab_size,max_seq_len,patch_size = 14,decoder_nums = 1):

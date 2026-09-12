@@ -2,12 +2,14 @@
 import torch
 import os
 import sys
-# 让 `import Attention` 生效：把 Attention 的父目录加入 sys.path（不依赖运行 cwd）
-_THIS_DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, os.path.dirname(_THIS_DIR))  # 父目录 = 30-，让 import Attention 生效
+# 让 `import Attention` 生效：把 Attention 的父目录(30-)加入 sys.path（不依赖运行 cwd）
+_THIS_DIR = os.path.dirname(os.path.abspath(__file__))       # Attention/caption
+_ATTN_DIR = os.path.dirname(_THIS_DIR)                       # Attention
+sys.path.insert(0, os.path.dirname(_ATTN_DIR))               # 30-
+CKPT_DIR = os.path.join(_ATTN_DIR, 'checkpoints')            # 权重统一存这里
 import torch.nn as nn
-from Attention.models.ImageCaptioningModel import ImageCaptioningModel
-from Attention.datasets.Flickr8k import get_data_loaders, get_vocab_size, CAPTION_MAX_LEN
+from Attention.caption.models.ImageCaptioningModel import ImageCaptioningModel
+from Attention.caption.datasets.Flickr8k import get_data_loaders, get_vocab_size, CAPTION_MAX_LEN
 import random
 from nltk.translate.bleu_score import sentence_bleu, SmoothingFunction
 
@@ -110,7 +112,7 @@ def train_models(model,epoch=100,device=None,data_loader = None,data_loader_test
             "model_state_dict": model.state_dict(),
             "optimizer_state_dict": optimizer.state_dict(),
             "epoch": epoch
-        }, f"checkpoints/imgcap_selftrainVit_model_epoch_{epoch+1}.pth")
+        }, os.path.join(CKPT_DIR, f"imgcap_selftrainVit_model_epoch_{epoch+1}.pth"))
         zero_img_test(model,data_loader=data_loader_test,device=device,max_batches = 5)
 
 def zero_img_test(model,data_loader= None,device = None,max_batches = 5):

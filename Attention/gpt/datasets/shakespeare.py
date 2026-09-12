@@ -4,7 +4,7 @@ from torch.utils.data import Dataset
 import torch
 import os
 import sys
-sys.path.insert(0,os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','..' ))
+sys.path.insert(0,os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','..','..' ))
 
 class ShakespeareDataset(Dataset):
     def __init__(self,text_file,max_seq_len):
@@ -28,7 +28,7 @@ class ShakespeareDataset(Dataset):
 if __name__ == "__main__":
 
     dataset = ShakespeareDataset(
-        "Attention/data/shakespeare.txt",
+        os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', '..', 'data', 'shakespeare.txt'),
         max_seq_len=32
     )
 

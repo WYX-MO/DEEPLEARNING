@@ -3,12 +3,12 @@ import torch
 import torch.nn as nn
 import os
 import sys 
-sys.path.insert(0,os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','..'))
+sys.path.insert(0,os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','..','..'))
 
-from Attention.models.Transformer_block import TransformerBlock
-from Attention.models.CLSToken import CLStoken_Generator
-from Attention.models.PositionEncoding import PositionEncoding
-from Attention.models.PatchEmbeding import PatchEmbeding
+from Attention.common.vision.Transformer_block import TransformerBlock
+from Attention.common.vision.CLSToken import CLStoken_Generator
+from Attention.common.vision.PositionEncoding import PositionEncoding
+from Attention.common.vision.PatchEmbeding import PatchEmbeding
 
 class VisionTransformer(nn.Module):
     def __init__(self, in_channels=3, patch_size=4, d_model=192, num_layers=12, num_heads=3, mlp_ratio=4.0, num_classes=10,cls =True):

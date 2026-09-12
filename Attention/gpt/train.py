@@ -1,10 +1,13 @@
 #train4gpt
 import os
 import sys
-sys.path.insert(0,os.path.join(os.path.dirname(os.path.abspath(__file__)),'..'))                 # 当前
+_THIS_DIR = os.path.dirname(os.path.abspath(__file__))       # Attention/gpt
+_ATTN_DIR = os.path.dirname(_THIS_DIR)                       # Attention
+sys.path.insert(0, os.path.dirname(_ATTN_DIR))               # 30-
+CKPT_DIR = os.path.join(_ATTN_DIR, 'checkpoints')
 import torch
-from Attention.datasets.shakespeare import ShakespeareDataset
-from Attention.models.GPT import GPT
+from Attention.gpt.datasets.shakespeare import ShakespeareDataset
+from Attention.gpt.models.GPT import GPT
 from torch.utils.data import DataLoader
 
 def train_model(model, epochs, train_loader,val_loader,learning_rate, device):
@@ -36,7 +39,7 @@ def train_model(model, epochs, train_loader,val_loader,learning_rate, device):
             total_loss += loss.item()
         avg_loss = total_loss / len(val_loader)
         print(f"Validation Loss: {avg_loss:.4f}")
-    torch.save(model.state_dict(), "gpt_model_10.pth")
+    torch.save(model.state_dict(), os.path.join(CKPT_DIR, "gpt_model_10.pth"))
 
 if __name__ == "__main__":
     # Hyperparameters

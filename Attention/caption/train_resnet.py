@@ -19,14 +19,16 @@ from torch.utils.data import DataLoader
 from torchvision import transforms
 from torchvision.models import resnet50, ResNet50_Weights
 
-_THIS = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, os.path.dirname(_THIS))                 # 父目录，让 import Attention 生效
+_THIS = os.path.dirname(os.path.abspath(__file__))          # Attention/caption
+_ATTN_DIR = os.path.dirname(_THIS)                          # Attention
+sys.path.insert(0, os.path.dirname(_ATTN_DIR))              # 30-，让 import Attention 生效
+CKPT_DIR = os.path.join(_ATTN_DIR, 'checkpoints')           # 权重统一存这里
 
-from Attention.datasets.Flickr8k import Flickr8kCaptions, get_vocab_size, CAPTION_MAX_LEN
-from Attention.models.text_embedding import TextEmbedding
-from Attention.models.Decoder_block import DecoderBlock
+from Attention.caption.datasets.Flickr8k import Flickr8kCaptions, get_vocab_size, CAPTION_MAX_LEN
+from Attention.common.text_embedding import TextEmbedding
+from Attention.caption.models.Decoder_block import DecoderBlock
 # 复用解码/BLEU 工具(它们只要求 model.forward(images, captions) -> logits)
-from train4caption import _greedy_decode, eval_bleu, SOS_ID, EOS_ID, PAD_ID
+from Attention.caption.train_scratch import _greedy_decode, eval_bleu, SOS_ID, EOS_ID, PAD_ID
 
 FEAT_DIM = 2048            # ResNet50 layer4 通道数
 D_MODEL = 192              # 与 ImageCaptioningModel 内部一致
@@ -171,7 +173,7 @@ def train(model, epoch=100, device=None, data_loader=None, data_loader_test=None
             "model_state_dict": model.state_dict(),
             "optimizer_state_dict": optimizer.state_dict(),
             "epoch": epoch_i,
-        }, f"checkpoints/{SAVE_PREFIX}_epoch_{epoch_i+1}.pth")
+        }, os.path.join(CKPT_DIR, f"{SAVE_PREFIX}_epoch_{epoch_i+1}.pth"))
 
 
 if __name__ == "__main__":

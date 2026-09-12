@@ -4,9 +4,9 @@ import torch
 import torch.nn as nn
 import os
 import sys
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','..'))
-from Attention.models.attention import MultiHeadAttention
-from Attention.models.feedforward import FeedForward
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','..','..'))
+from Attention.common.attention import MultiHeadAttention
+from Attention.common.feedforward import FeedForward
 
 class GPTBlock(nn.Module):
     def __init__(self, d_model, num_heads, d_ff):

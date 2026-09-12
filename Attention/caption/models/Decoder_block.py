@@ -4,10 +4,10 @@ import torch.nn as nn
 import torch
 import sys
 import os
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from attention import MultiHeadAttention
-from CrossAttention import MultiHeadCrossAttention
-from feedforward import FeedForward
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', '..'))
+from Attention.common.attention import MultiHeadAttention
+from Attention.caption.models.CrossAttention import MultiHeadCrossAttention
+from Attention.common.feedforward import FeedForward
 
 class DecoderBlock(nn.Module):
     def __init__(self, d_model_img,d_model_seq, num_heads,mlp_ratio =4.0):

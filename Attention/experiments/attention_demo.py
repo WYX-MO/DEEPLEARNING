@@ -6,7 +6,7 @@ import sys
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..'))
 
 import torch
-from Attention.models.attention import SelfAttention
+from Attention.common.attention import SelfAttention
 
 torch.manual_seed(42)
 

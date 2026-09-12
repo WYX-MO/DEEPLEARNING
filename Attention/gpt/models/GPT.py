@@ -4,9 +4,9 @@ import torch
 import torch.nn as nn
 import os
 import sys
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','..'))
-from Attention.models.GPT_block import GPTBlock
-from Attention.models.text_embedding import TextEmbedding
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','..','..'))
+from Attention.gpt.models.GPT_block import GPTBlock
+from Attention.common.text_embedding import TextEmbedding
 class GPT(nn.Module):
     def __init__(self, vocab_size,max_seq_len,d_model, num_heads, d_ff, num_layers):
         super().__init__()

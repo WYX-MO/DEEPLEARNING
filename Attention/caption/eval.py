@@ -2,11 +2,19 @@
 #   BLEU-1..4(200图, seed=0, 确定性) + 固定句 image_gain + 8 张 real/zero greedy 样例。
 #   关键修复: 每次遍历 test loader 前 random.seed 全局 RNG -> real 与 zero 用同一批目标句,
 #   把 image_gain 从"图信号+标注抽样噪声"里剥离出纯图像信号(确定性)。
+import os
+import sys
 import random
 import torch
-import train4caption_resnet as tr
-from Attention.datasets.Flickr8k import get_vocab_size, CAPTION_MAX_LEN
-from train4caption import eval_bleu
+
+_THIS_DIR = os.path.dirname(os.path.abspath(__file__))       # Attention/caption
+_ATTN_DIR = os.path.dirname(_THIS_DIR)                       # Attention
+sys.path.insert(0, os.path.dirname(_ATTN_DIR))               # 30-，让 import Attention 生效
+CKPT_DIR = os.path.join(_ATTN_DIR, 'checkpoints')
+
+from Attention.caption import train_resnet as tr
+from Attention.caption.datasets.Flickr8k import get_vocab_size, CAPTION_MAX_LEN
+from Attention.caption.train_scratch import eval_bleu
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -55,7 +63,7 @@ def to_text(seq):
 
 for ep in [25, 50, 75, 100]:
     m = make_model()
-    m.load_state_dict(torch.load(f"checkpoints/resnet50_model_epoch_{ep}.pth", map_location=device)["model_state_dict"])
+    m.load_state_dict(torch.load(os.path.join(CKPT_DIR, f"resnet50_model_epoch_{ep}.pth"), map_location=device)["model_state_dict"])
     m.eval()
     _, test_loader = tr.make_loaders(batch_size=64)
     ds = test_loader.dataset
@@ -67,7 +75,7 @@ for ep in [25, 50, 75, 100]:
 
 # 最终 epoch 的定性样例 (8 张真实 vs 全零)
 m = make_model()
-m.load_state_dict(torch.load("checkpoints/resnet50_model_epoch_100.pth", map_location=device)["model_state_dict"])
+m.load_state_dict(torch.load(os.path.join(CKPT_DIR, "resnet50_model_epoch_100.pth"), map_location=device)["model_state_dict"])
 m.eval()
 _, test_loader = tr.make_loaders(batch_size=64)
 ds = test_loader.dataset

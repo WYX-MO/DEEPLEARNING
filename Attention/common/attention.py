@@ -6,7 +6,7 @@ import random
 import os
 import sys
 sys.path.insert(0,os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','..'))
-from Attention.models.RotaryEmbedding import RotaryEmbedding
+from Attention.common.RotaryEmbedding import RotaryEmbedding
 seed = 42
 random.seed(seed)
 

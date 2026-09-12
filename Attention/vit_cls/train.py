@@ -2,12 +2,15 @@
 
 import sys
 import os
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
+_THIS_DIR = os.path.dirname(os.path.abspath(__file__))       # Attention/vit_cls
+_ATTN_DIR = os.path.dirname(_THIS_DIR)                       # Attention
+sys.path.insert(0, os.path.dirname(_ATTN_DIR))               # 30-
+CKPT_DIR = os.path.join(_ATTN_DIR, 'checkpoints')
 
 import torch.nn as nn
 import torch
-from Attention.datasets.cifar10 import get_data_loaders
-from Attention.models.Vit import VitionTransformer
+from Attention.vit_cls.datasets.cifar10 import get_data_loaders
+from Attention.common.vision.Vit import VitionTransformer
 
 def train_models(model,epoch=100,device=None,data_loader = None,data_loader_test = None):
     model = model.to(device)
@@ -50,7 +53,7 @@ def train_models(model,epoch=100,device=None,data_loader = None,data_loader_test
             "model_state_dict": model.state_dict(),
             "optimizer_state_dict": optimizer.state_dict(),
             "epoch": epoch
-        }, f"checkpoints/vit_model_epoch_{epoch+1}.pth")
+        }, os.path.join(CKPT_DIR, f"vit_model_epoch_{epoch+1}.pth"))
 
 if __name__ == "__main__":
     data_loader, data_loader_test = get_data_loaders()

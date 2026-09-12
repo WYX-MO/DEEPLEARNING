@@ -4,8 +4,8 @@ import torch.nn.functional as F
 import torch
 import os
 import sys
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from attention import MultiHeadAttention
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', '..'))
+from Attention.common.attention import MultiHeadAttention
 
 class CrossAttention(nn.Module):
     '''

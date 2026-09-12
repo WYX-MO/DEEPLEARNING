@@ -8,7 +8,7 @@ from torch.utils.data import DataLoader
 import random
 
 
-DATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..','CNN','data')
+DATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', '..', 'CNN','data')
 
 class_labels = ['airplane', 'automobile', 'bird', 'cat', 'deer',
                 'dog', 'frog', 'horse', 'ship', 'truck']

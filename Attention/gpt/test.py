@@ -6,23 +6,24 @@ import os
 import sys
 import argparse
 
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..'))
 
 import torch
 import torch.nn.functional as F
-from Attention.models.GPT import GPT
-from Attention.datasets.shakespeare import ShakespeareDataset
+from Attention.gpt.models.GPT import GPT
+from Attention.gpt.datasets.shakespeare import ShakespeareDataset
 
-# 必须与 train4gpt.py 保持一致
+# 必须与 gpt/train.py 保持一致
 MAX_SEQ_LEN = 32
 D_MODEL = 192
 NUM_HEADS = 4
 D_FF = 768
 NUM_LAYERS = 6
 
-HERE = os.path.dirname(os.path.abspath(__file__))
-CKPT = os.path.join(HERE, 'gpt_model_10.pth')
-DATA = os.path.join(HERE, 'data', 'shakespeare.txt')
+HERE = os.path.dirname(os.path.abspath(__file__))            # Attention/gpt
+_ATTN_DIR = os.path.dirname(HERE)                            # Attention
+CKPT = os.path.join(_ATTN_DIR, 'checkpoints', 'gpt_model_10.pth')
+DATA = os.path.join(_ATTN_DIR, 'data', 'shakespeare.txt')
 
 
 def load_model():

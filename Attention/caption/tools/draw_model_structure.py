@@ -2,6 +2,7 @@
 # 绘制 ImageCaptioningModel（ViT 编码器 + Transformer 解码器）结构图，带张量形状标注
 # 运行: python draw_model_structure.py  ->  生成 model_structure.png
 
+import os
 import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.patches import FancyBboxPatch, FancyArrowPatch
@@ -91,5 +92,7 @@ arrow(ax, 7.5, 10.4, 6.9, 7.2,  'Q')     # 词 token → Decoder
 arrow(ax, 5.0, 3.1, 5.0, 2.6)            # Decoder → pred_head
 arrow(ax, 5.0, 1.4, 5.0, 1.2)            # pred_head → logits
 
-fig.savefig('model_structure.png', bbox_inches='tight')
-print('saved -> model_structure.png')
+_OUT = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+                    'results', 'model_structure.png')
+fig.savefig(_OUT, bbox_inches='tight')
+print(f'saved -> {_OUT}')
