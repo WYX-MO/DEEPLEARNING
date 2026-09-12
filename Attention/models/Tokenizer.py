@@ -24,7 +24,7 @@ def build_vocab(captions, min_freq=1):
     vocab = ['<pad>', '<sos>', '<eos>', '<unk>'] + vocab  # Add special tokens
     return vocab
 
-class ZZHTokenizer:
+class ZHTokenizer:
     def __init__(self,vocab):
         self.tok = Tokenizer(models.BPE(unk_token = "<unk>"))
         self.tok.pre_tokenizer = pre_tokenizers.pre_tokenizers.ByteLevel(add_prefix_space=False)
@@ -39,7 +39,11 @@ def train_by_spm(corpus_path, vocab_size):
     input=corpus_path, model_prefix="zh",                              
     vocab_size=vocab_size, model_type="bpe",                                 
     character_coverage=0.9995,          # 中文关键参数                  
-    pad_id=0, unk_id=1, bos_id=2, eos_id=3)     
+    pad_id=0, unk_id=1, bos_id=2, eos_id=3)   
+
+def build_vocab_zh(vocab_path):
+    with open("vocab_path",'w') as f:
+        pass
 
 if __name__ == "__main__":
     corpus_path = "/mnt/data/ML/dl/Attention/data/sanGuo/cap1.txt"

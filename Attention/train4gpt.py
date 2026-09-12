@@ -7,14 +7,13 @@ from Attention.datasets.shakespeare import ShakespeareDataset
 from Attention.models.GPT import GPT
 from torch.utils.data import DataLoader
 
-def train_model(model, epochs, train_loader,learning_rate, device):
-    model.train()
+def train_model(model, epochs, train_loader,val_loader,learning_rate, device):
+    
     criterion = torch.nn.CrossEntropyLoss()
     optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate)
-
+    model.train()
     # Training loop
     for epoch in range(epochs):
-        
         total_loss = 0.0
         for  b_idx, (x, y) in enumerate(train_loader):
             x, y = x.to(device), y.to(device)
@@ -27,6 +26,16 @@ def train_model(model, epochs, train_loader,learning_rate, device):
         avg_loss = total_loss / len(train_loader)
         print(f"Epoch [{epoch+1}/{epochs}], Loss: {avg_loss:.4f}")
 
+    model.eval()
+    with torch.no_grad():
+        total_loss = 0.0
+        for x, y in val_loader:
+            x, y = x.to(device), y.to(device)
+            output = model(x)
+            loss = criterion(output.view(-1, output.size(-1)), y.view(-1))
+            total_loss += loss.item()
+        avg_loss = total_loss / len(val_loader)
+        print(f"Validation Loss: {avg_loss:.4f}")
     torch.save(model.state_dict(), "gpt_model_10.pth")
 
 if __name__ == "__main__":
@@ -44,12 +53,21 @@ if __name__ == "__main__":
     data_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "shakespeare.txt")
     dataset = ShakespeareDataset(data_path, max_seq_len)
 
+    #build valid dataset
+    train_size = int(0.9*len(dataset))
+    val_size = len(dataset)-train_size
+    train_dataset, val_dataset = torch.utils.data.random_split(
+    dataset,
+    [train_size, val_size],
+    generator=torch.Generator().manual_seed(42)
+)
+
     vocab_size = dataset.chars  # Adjust based on dataset
     train_loader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
-
+    val_loader = DataLoader(dataset= val_dataset,batch_size = batch_size,shuffle=False)
     # Initialize model, criterion, and optimizer
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = GPT(vocab_size, max_seq_len, d_model, num_heads, d_ff, num_layers).to(device)
     print(f"Using device: {device}")
     print("start training;exp0")
-    train_model(model, epochs, train_loader, learning_rate, device)
+    train_model(model, epochs, train_loader,val_loader ,learning_rate, device)

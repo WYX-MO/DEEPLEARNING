@@ -3,7 +3,10 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import random
-
+import os
+import sys
+sys.path.insert(0,os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','..'))
+from Attention.models.RotaryEmbedding import RotaryEmbedding
 seed = 42
 random.seed(seed)
 
@@ -58,13 +61,15 @@ class discrete_MultiHeadAttention(nn.Module):
         return final_output, attentions
 
 class MultiHeadAttention(nn.Module):
-    def __init__ (self, d_model,  num_heads):
+    def __init__ (self, d_model,  num_heads, rope = False):
         super().__init__()
+        self.rope = rope
         self.num_heads = num_heads
         self.d_k = d_model // num_heads
         self.W = nn.Linear(d_model, num_heads * self.d_k * 3)  # For Q, K, V
         self.W_o = nn.Linear(num_heads * self.d_k, d_model)
         self.attn_dropout = nn.Dropout(0.1)
+        self.RoPE = RotaryEmbedding()
     def forward(self, x,mask = None):
         # x: [batch_size, seq_len, d_model]
         batch_size, seq_len, _ = x.size()
@@ -78,6 +83,9 @@ class MultiHeadAttention(nn.Module):
         Q = Q.transpose(1, 2)  # [batch_size, num_heads, seq_len, d_k]
         K = K.transpose(1, 2)  # [batch_size, num_heads, seq_len, d_k]
         V = V.transpose(1, 2)  # [batch_size, num_heads, seq_len, d_k]
+        if self.rope == True:
+            Q = self.RoPE(Q)
+            V = self.RoPE(V)
 
         # Compute attention scores
         attention_scores = torch.matmul(Q, K.transpose(-2, -1)) / (K.size(-1) ** 0.5)  # [batch_size, num_heads, seq

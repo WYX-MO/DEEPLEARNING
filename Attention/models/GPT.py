@@ -30,6 +30,23 @@ class GPT(nn.Module):
         x = self.norm(x)
         return self.lm_head(x)  # [batch_size, seq_len, vocab_size]
 
+    @torch.no_grad()
+    def generator(self,idx,max_new_len,temperature=0.7):
+        for _ in range(max_new_len):
+            idx_cond = idx[:, -self.max_seq_len:]
+            logits = self(idx_cond)
+            logits = logits[:, -1, :]
+            probs = torch.softmax(logits/temperature, dim=-1)
+
+            next_token = torch.multinomial(
+                probs,
+                num_samples=1
+            )
+
+            idx = torch.cat([idx, next_token], dim=1)
+
+        return idx
+
 if __name__ == "__main__":
     model = GPT(
         vocab_size=10000,
