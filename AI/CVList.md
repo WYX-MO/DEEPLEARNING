@@ -4,6 +4,11 @@
 1. 动漫资源丰富
 2. 学习自监督
 ![[Pasted image 20260911124912.png]]
+coca
+clip
+flamingo
+molmo
+sam
 
 整理attention实验，撰写报告
 
