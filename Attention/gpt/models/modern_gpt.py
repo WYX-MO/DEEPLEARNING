@@ -8,6 +8,8 @@ from Attention.gpt.models.GPT_block import GPTBlock
 from Attention.common.text_embedding import TextEmbedding
 from Attention.gpt.models.GPT_block import ModernGPTBlock
 from Attention.common.RMSNorm import RMSNorm
+
+
 class ModernGPT(nn.Module):
 
     def __init__(self, vocab_size,max_seq_len,d_model, num_heads, d_ff, num_layers):

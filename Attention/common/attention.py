@@ -6,7 +6,7 @@ import random
 import os
 import sys
 sys.path.insert(0,os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','..'))
-from Attention.common.RotaryEmbedding import RotaryEmbedding
+from Attention.common.RotaryEmbedding import RoPE
 seed = 42
 random.seed(seed)
 
@@ -69,7 +69,7 @@ class MultiHeadAttention(nn.Module):
         self.W = nn.Linear(d_model, num_heads * self.d_k * 3)  # For Q, K, V
         self.W_o = nn.Linear(num_heads * self.d_k, d_model)
         self.attn_dropout = nn.Dropout(0.1)
-        self.RoPE = RotaryEmbedding()
+        self.RoPE = RoPE(self.d_k, max_seq_len=128)
     def forward(self, x,mask = None):
         # x: [batch_size, seq_len, d_model]
         batch_size, seq_len, _ = x.size()
