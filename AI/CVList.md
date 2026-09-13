@@ -25,3 +25,8 @@ move:
 questions:
 rope的作用？
 
+rightnow:
+调试到可以开始训练
+中英文实验
+kvcache
+molmo
