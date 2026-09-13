@@ -1,0 +1,52 @@
+<!doctype html><html lang="zh"><head><meta charset="utf-8">
+<title>masked_fill + tril / triu · torch 速查</title><style>
+body{font-family:-apple-system,'PingFang SC',Helvetica,Arial,sans-serif;
+     max-width:920px;margin:24px auto;padding:0 20px;line-height:1.7;color:#222}
+h1{border-bottom:3px solid #4a6;padding-bottom:8px}
+h2{color:#345;border-left:5px solid #69c;padding-left:10px;margin-top:28px}
+.tag{display:inline-block;background:#eef;color:#45c;border-radius:4px;
+     padding:2px 10px;font-size:13px;margin-left:8px}
+table{border-collapse:collapse;width:100%;margin:8px 0}
+th,td{border:1px solid #ddd;padding:6px 10px;text-align:left;font-size:14px}
+th{background:#f4f6fa}
+pre{background:#0f1626;color:#d7e0ee;padding:12px;border-radius:8px;
+    overflow-x:auto;font-size:13px;line-height:1.5}
+pre.out{background:#f4f9f4;color:#1d3;border:1px solid #bec;color:#14532d}
+.note{color:#666;font-size:13px}
+.src{color:#999;font-size:12px;margin-top:4px}
+</style></head><body>
+<h1>masked_fill + tril / triu <span class="tag">张量运算</span></h1>
+<p>masked_fill(mask, value) 把 mask 为 True 的位置替换成 value。配 tril(下三角)能做出『因果 mask』：下三角保留、右上角填 -inf，softmax 后那些位置权重=0。</p>
+<h2>参数</h2>
+<table><tr><th style="width:30%">参数</th><th>说明</th></tr><tr><td><code>masked_fill(mask, value)</code></td><td>mask 是与原张量可广播的布尔张量</td></tr><tr><td><code>tril(m)</code></td><td>m×m 下三角（含对角线）为 1，其余 0</td></tr><tr><td><code>为什么填 -inf</code></td><td>softmax(exp(-inf)=0) → 那些位置注意力精确为 0</td></tr></table>
+<h2>要点 / 坑</h2><ul><li>mask 一定要能广播到 attention_scores：2D [L,L] 会被当 [1,1,L,L] 用。</li><li>mask 填 -inf 必须在 softmax 之前才有效。</li></ul>
+<h2>示例（本机 torch 真实运行）</h2>
+<pre>
+import torch
+torch.manual_seed(0)
+L = 4
+mask = torch.tril(torch.ones(L, L))          # 下三角=1
+scores = torch.rand(L, L)
+masked = scores.masked_fill(mask == 0, float(&#x27;-inf&#x27;))
+print(&quot;tril mask:\n&quot;, mask)
+print(&quot;masked 后的分数:\n&quot;, masked)
+print(&quot;softmax 后（被挡位置=0）:\n&quot;, torch.softmax(masked, dim=-1))
+</pre>
+<pre class="out">tril mask:
+ tensor([[1., 0., 0., 0.],
+        [1., 1., 0., 0.],
+        [1., 1., 1., 0.],
+        [1., 1., 1., 1.]])
+masked 后的分数:
+ tensor([[0.4963,   -inf,   -inf,   -inf],
+        [0.3074, 0.6341,   -inf,   -inf],
+        [0.4556, 0.6323, 0.3489,   -inf],
+        [0.0223, 0.1689, 0.2939, 0.5185]])
+softmax 后（被挡位置=0）:
+ tensor([[1.0000, 0.0000, 0.0000, 0.0000],
+        [0.4191, 0.5809, 0.0000, 0.0000],
+        [0.3234, 0.3859, 0.2907, 0.0000],
+        [0.1956, 0.2265, 0.2566, 0.3213]])
+</pre>
+<p class="src">来源: 自建知识库 + 本机 torch 执行结果（非官网）· 生成于 2026-09-13 16:31</p>
+</body></html>

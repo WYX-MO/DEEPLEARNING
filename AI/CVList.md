@@ -12,7 +12,7 @@ sam
 
 整理attention实验，撰写报告
 
-move：
+move:
 1. 完成minigpt训练和框架 #
 2. 开始gpt视频
 3. 生成网络详细（gan，vae，diffusion）
@@ -21,9 +21,7 @@ move：
 4. 完结cs231n
 5. yolo等图像分割
 
-12日：
-gpt开始
-- 中文语料库尝试
-cs231n完结
-填色模型初探
-背稿子
+
+questions:
+rope的作用？
+
