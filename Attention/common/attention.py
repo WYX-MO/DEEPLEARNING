@@ -84,18 +84,72 @@ class MultiHeadAttention(nn.Module):
         K = K.transpose(1, 2)  # [batch_size, num_heads, seq_len, d_k]
         V = V.transpose(1, 2)  # [batch_size, num_heads, seq_len, d_k]
         if self.rope == True:
-            Q = self.RoPE(Q)
-            K = self.RoPE(K)
+            Q = self.RoPE(Q, start_pos=0)
+            K = self.RoPE(K, start_pos=0)
 
         # Compute attention scores
         attention_scores = torch.matmul(Q, K.transpose(-2, -1)) / (K.size(-1) ** 0.5)  # [batch_size, num_heads, seq
+        # mask 约定：1 = 允许看，0 = 屏蔽（因果掩码用 torch.tril(ones) 生成）
         if mask is not None:
-            attention_scores = attention_scores.masked_fill(mask != 0, float('-inf'))
+            attention_scores = attention_scores.masked_fill(mask == 0, float('-inf'))
         attention_scores = F.softmax(attention_scores, dim=-1)  # [batch_size, num_heads, seq_len, seq_len]                                                            
         attention_weights = self.attn_dropout(attention_scores)
-        attention = torch.matmul(attention_scores, V)  # [batch_size, num_heads, seq_len, d_k]
+        attention = torch.matmul(attention_weights, V)  # [batch_size, num_heads, seq_len, d_k]
         attention = attention.transpose(1,2)
         attention = attention.reshape(batch_size, seq_len, -1)
         attention = self.W_o(attention)  # [batch_size, seq_len, d_model]
         
         return attention,attention_weights  # [batch_size, num_heads, seq_len, d_k]
+
+
+
+class MHAttnWithCache(nn.Module):
+    def __init__ (self, d_model,  num_heads, rope = False):
+        super().__init__()
+        self.rope = rope
+        self.num_heads = num_heads
+        self.d_k = d_model // num_heads
+        self.W = nn.Linear(d_model, num_heads * self.d_k * 3)  # For Q, K, V
+        self.W_o = nn.Linear(num_heads * self.d_k, d_model)
+        self.attn_dropout = nn.Dropout(0.1)
+        self.RoPE = RoPE(self.d_k, max_seq_len=128)
+    def forward(self, x,mask = None,k_cache=None,v_cache=None):
+        # x: [batch_size, seq_len, d_model]
+        #if cache == True，x : [batch_size,1,d_model] only calculate the last token
+        batch_size, seq_len, _ = x.size()
+
+        # Linear projection to get Q, K, V for all heads
+        qkv = self.W(x)  # [batch_size, seq_len, num_heads * d_k * 3]
+        qkv = qkv.view(batch_size, seq_len, self.num_heads, -1)  # [batch_size, seq_len, num_heads, 3 * d_k]
+        Q, K, V = torch.chunk(qkv, 3, dim=-1)  # Each of shape [batch_size, seq_len, num_heads, d_k]
+
+        # Transpose to get the shape [batch_size, num_heads, seq_len, d_k]
+        Q = Q.transpose(1, 2)  # [batch_size, num_heads, seq_len, d_k]
+        K = K.transpose(1, 2)  # [batch_size, num_heads, seq_len, d_k]
+        V = V.transpose(1, 2)  # [batch_size, num_heads, seq_len, d_k]
+        if self.rope == True:
+            if k_cache is not None:
+                past_len = k_cache.size(2)
+            else:
+                past_len = 0
+            Q = self.RoPE(Q, start_pos=past_len)
+            K = self.RoPE(K, start_pos=past_len)
+
+        # ========= KV Cache 拼接逻辑 =========
+        if k_cache is not None and v_cache is not None:
+            # 把新算出来的K,V追加到历史缓存后面
+            K = torch.cat([k_cache, K], dim=2)
+            V = torch.cat([v_cache, V], dim=2)
+        # Compute attention scores
+        attention_scores = torch.matmul(Q, K.transpose(-2, -1)) / (K.size(-1) ** 0.5)  # [batch_size, num_heads, seq
+        # mask 约定：1 = 允许看，0 = 屏蔽（因果掩码用 torch.tril(ones) 生成）
+        if mask is not None:
+            attention_scores = attention_scores.masked_fill(mask == 0, float('-inf'))
+        attention_scores = F.softmax(attention_scores, dim=-1)  # [batch_size, num_heads, seq_len, seq_len]                                                            
+        attention_weights = self.attn_dropout(attention_scores)
+        attention = torch.matmul(attention_weights, V)  # [batch_size, num_heads, seq_len, d_k]
+        attention = attention.transpose(1,2)
+        attention = attention.reshape(batch_size, seq_len, -1)
+        attention = self.W_o(attention)  # [batch_size, seq_len, d_model]
+        
+        return attention,attention_weights,K,V  # [batch_size, num_heads, seq_len, d_k]

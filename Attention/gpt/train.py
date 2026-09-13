@@ -18,6 +18,7 @@ def train_model(model, epochs, train_loader,val_loader,learning_rate, device):
     # Training loop
     for epoch in range(epochs):
         total_loss = 0.0
+        
         for  b_idx, (x, y) in enumerate(train_loader):
             x, y = x.to(device), y.to(device)
             optimizer.zero_grad()
@@ -27,18 +28,21 @@ def train_model(model, epochs, train_loader,val_loader,learning_rate, device):
             optimizer.step()
             total_loss += loss.item()
         avg_loss = total_loss / len(train_loader)
+        
         print(f"Epoch [{epoch+1}/{epochs}], Loss: {avg_loss:.4f}")
 
     model.eval()
     with torch.no_grad():
         total_loss = 0.0
+        ppl = 0.0
         for x, y in val_loader:
             x, y = x.to(device), y.to(device)
             output = model(x)
             loss = criterion(output.view(-1, output.size(-1)), y.view(-1))
             total_loss += loss.item()
         avg_loss = total_loss / len(val_loader)
-        print(f"Validation Loss: {avg_loss:.4f}")
+        print(f"Validation Loss: {avg_loss:.4f}, ppl: {torch.exp(avg_loss).item():.4f}")
+        
     torch.save(model.state_dict(), os.path.join(CKPT_DIR, "gpt_model_10.pth"))
 
 def shape_test(model,device,test = False):

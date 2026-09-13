@@ -26,9 +26,8 @@ class ModernGPT(nn.Module):
     def forward(self, x):
         B,T = x.shape
         x = self.text_embeding(x)
-        mask = torch.triu(
-            torch.ones(T, T, device=x.device), diagonal=1
-        )
+        # 因果掩码：1 = 允许看（含自己），0 = 屏蔽未来。
+        mask = torch.tril(torch.ones(T, T, device=x.device))
         for layer in self.layers:
             x = layer(x, mask)
         x = self.norm(x)
@@ -50,7 +49,28 @@ class ModernGPT(nn.Module):
             idx = torch.cat([idx, next_token], dim=1)
 
         return idx
+    @torch.no_grad()
+    def generator_with_cache(self, idx, max_new_len, temperature=0.7):
+        # idx: [B, T] prompt序列
+        cache_k = None
+        cache_v = None
 
+        for _ in range(max_new_len):
+            if cache_k is None:
+                # Prefill阶段：第一次，输入完整prompt片段，生成初始KV cache
+                idx_cond = idx[:, -self.max_seq_len:]
+                logits, cache_k, cache_v = self(idx_cond, k_cache=cache_k, v_cache=cache_v)
+            else:
+                # Decode阶段：只取上一步最后1个token输入，不再传整段序列！
+                idx_cond = idx[:, -1:]
+                logits, cache_k, cache_v = self(idx_cond, k_cache=cache_k, v_cache=cache_v)
+
+            # 只取最后一个token的logits
+            logits = logits[:, -1, :]
+            probs = torch.softmax(logits / temperature, dim=-1)
+            next_token = torch.multinomial(probs, num_samples=1)
+            idx = torch.cat([idx, next_token], dim=1)
+        return idx
 if __name__ == "__main__":
     model = ModernGPT(
         vocab_size=10000,

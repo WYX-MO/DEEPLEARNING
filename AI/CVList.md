@@ -24,6 +24,7 @@ move:
 
 questions:
 rope的作用？
+bleu和cross entropy用于指标的区别和计算
 
 rightnow:
 调试到可以开始训练
