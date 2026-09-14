@@ -1,6 +1,7 @@
 #Tokenizer.py
 
-from tokenizers import Tokenizer,models,trainers,pre_tokenizers
+from tokenizers import Tokenizer as Tkr
+from tokenizers import models,trainers,pre_tokenizers
 import sentencepiece as spm
 
 class Tokenizer:
@@ -24,15 +25,21 @@ def build_vocab(captions, min_freq=1):
     vocab = ['<pad>', '<sos>', '<eos>', '<unk>'] + vocab  # Add special tokens
     return vocab
 
-class ZHTokenizer:
-    def __init__(self,vocab):
-        self.tok = Tokenizer(models.BPE(unk_token = "<unk>"))
-        self.tok.pre_tokenizer = pre_tokenizers.pre_tokenizers.ByteLevel(add_prefix_space=False)
-        self.trainer = trainers.BpeTrainer(vocab_size=len(vocab), special_tokens=["<pad>", "<sos>", "<eos>", "<unk>"])
+# class ZHTokenizer:
+#     def __init__(self,vocab):
+#         self.tok = Tkr(models.BPE(unk_token = "<unk>"))
+#         self.tok.pre_tokenizer = pre_tokenizers.pre_tokenizers.ByteLevel(add_prefix_space=False)
+#         self.trainer = trainers.BpeTrainer(vocab_size=len(vocab), special_tokens=["<pad>", "<sos>", "<eos>", "<unk>"])
 
-    def train_by_hf(self, vocab):
-        self.tok.train_from_iterator(vocab, trainer=self.trainer)
-        self.tok.save("zhtokenizer.json")
+#     def train_by_hf(self, vocab):
+#         self.tok.train_from_iterator(vocab, trainer=self.trainer)
+#         self.tok.save("zhtokenizer.json")
+
+#     def encode(self,text):
+#         return self.tok.encode(text)
+
+#     def decode(self,indices):
+#         return self.tok.decode(indices)
 
 def train_by_spm(corpus_path, vocab_size):
     spm.SentencePieceTrainer.train(                                         
@@ -41,12 +48,8 @@ def train_by_spm(corpus_path, vocab_size):
     character_coverage=0.9995,          # 中文关键参数                  
     pad_id=0, unk_id=1, bos_id=2, eos_id=3)   
 
-def build_vocab_zh(vocab_path):
-    with open("vocab_path",'w') as f:
-        pass
-
 if __name__ == "__main__":
-    corpus_path = "/mnt/data/ML/dl/Attention/data/sanGuo/cap1.txt"
-    vocab_size = 5770
+    corpus_path = "/mnt/data/ML/dl/Attention/data/sanGuo/all.txt"
+    vocab_size = 10000
     train_by_spm(corpus_path, vocab_size=vocab_size)
     print("done")
