@@ -12,7 +12,7 @@ class ShakespeareDataset(Dataset):
             self.text = f.read()
         self.max_seq_len = max_seq_len
         self.vocab = sorted(set(self.text))
-        self.chars = len(self.vocab)
+        self.vocab_size = len(self.vocab)
         self.char2idx = {ch:i for i,ch in enumerate(self.vocab)}
         self.idx2char = {i:ch for i,ch in enumerate(self.vocab)}
         self.data = [self.char2idx[ch] for ch in self.text]

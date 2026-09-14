@@ -21,8 +21,8 @@ from torch.utils.data import Dataset
 # ---- 路径 ----
 # sanguo.py 位于 Attention/gpt/datasets/，往上 3 层 = Attention
 _ATTN = Path(__file__).resolve().parents[2]
-CORPUS = _ATTN / 'data' / 'sanguo.txt'      # 原始语料
-SPM_MODEL = _ATTN.parent / 'zh.model'       # 分词器（30-/zh.model，可改成新训的）
+CORPUS = _ATTN / 'data' / 'sanGuo' / 'all.txt'      # 原始语料
+SPM_MODEL = _ATTN / 'data' / 'sanGuo' / 'zh.model'       # 分词器（30-/zh.model，可改成新训的）
 
 
 class SanGuoDataset(Dataset):
@@ -32,7 +32,7 @@ class SanGuoDataset(Dataset):
         # 1) 读全文（中文语料基本是 UTF-8）
         with open(corpus_path, 'r', encoding='utf-8') as f:
             text = f.read()
-
+        self.vocab_size = sp.get_piece_size()
         # 2) 整段文本只 encode 一次 -> 直接存成 long tensor。
         #    之后切片 data[i:i+L] 出来就已经是 tensor，不必再转。
         ids = sp.encode(text)
@@ -69,8 +69,9 @@ if __name__ == "__main__":
     print("spm    :", SPM_MODEL)
     print("vocab  :", ds.vocab_size, "| 样本数:", len(ds))
 
-    x, y = ds[0]
+    x, y = ds[3]
     print("x:", tuple(x.shape), x.dtype)
     print("y:", tuple(y.shape), y.dtype)
+    print(x)
     print("x 解码:", ds.decode(x.tolist())[:60])
     print("y 解码:", ds.decode(y.tolist())[:60])

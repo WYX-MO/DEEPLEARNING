@@ -5,12 +5,13 @@ import os
 import sys
 sys.path.insert(0,os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','..'))
 from Attention.gpt.models.GPT import GPT
+from Attention.gpt.models.modern_gpt import ModernGPT
 from Attention.common.Tokenizer import Tokenizer
 from Attention.gpt.datasets.shakespeare import ShakespeareDataset
 
 HERE = os.path.dirname(os.path.abspath(__file__))            # Attention/gpt
 _ATTN_DIR = os.path.dirname(HERE)                            # Attention
-CKPT = os.path.join(_ATTN_DIR, 'checkpoints', 'gpt_model_10.pth')
+CKPT = os.path.join(_ATTN_DIR, 'checkpoints', 'gpt_model_90.pth')
 file_path = os.path.join(_ATTN_DIR, 'data', 'shakespeare.txt')
 
 # 必须与 gpt/train.py 保持一致
@@ -25,7 +26,7 @@ if __name__ == "__main__":
 
     ds = ShakespeareDataset(file_path,MAX_SEQ_LEN)
     vocab_size = ds.chars
-    model = GPT(
+    model = ModernGPT(
         vocab_size=vocab_size,
         max_seq_len=MAX_SEQ_LEN,
         d_model=D_MODEL,
@@ -38,7 +39,7 @@ if __name__ == "__main__":
     model.load_state_dict(torch.load(CKPT, map_location='cpu'))
     prompt = input("请输入提示：")
     ids = [ds.char2idx[c] for c in prompt if c in ds.char2idx] 
-    ids = torch.tensor(ids)
+    ids = torch.tensor(ids).unsqueeze(0)
     generated = model.generator(ids,max_new_len=100,temperature=0.5)
     out = "".join([ds.idx2char[_] for _ in generated[0].tolist()])
     print(out)
