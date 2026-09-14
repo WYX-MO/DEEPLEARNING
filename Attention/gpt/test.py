@@ -11,6 +11,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'
 import torch
 import torch.nn.functional as F
 from Attention.gpt.models.GPT import GPT
+from Attention.gpt.models.modern_gpt import ModernGPT
 from Attention.gpt.datasets.shakespeare import ShakespeareDataset
 
 # 必须与 gpt/train.py 保持一致
@@ -22,14 +23,14 @@ NUM_LAYERS = 6
 
 HERE = os.path.dirname(os.path.abspath(__file__))            # Attention/gpt
 _ATTN_DIR = os.path.dirname(HERE)                            # Attention
-CKPT = os.path.join(_ATTN_DIR, 'checkpoints', 'gpt_model_10.pth')
+CKPT = os.path.join(_ATTN_DIR, 'checkpoints', 'gpt_model_90.pth')
 DATA = os.path.join(_ATTN_DIR, 'data', 'shakespeare.txt')
 
 
 def load_model():
     # 复用 Dataset 重建词表，保证 char2idx / idx2char 与训练时完全一致
     ds = ShakespeareDataset(DATA, MAX_SEQ_LEN)
-    model = GPT(ds.chars, MAX_SEQ_LEN, D_MODEL, NUM_HEADS, D_FF, NUM_LAYERS)
+    model = ModernGPT(ds.chars, MAX_SEQ_LEN, D_MODEL, NUM_HEADS, D_FF, NUM_LAYERS)
     state = torch.load(CKPT, map_location='cpu')
     model.load_state_dict(state)
     model.eval()

@@ -8,7 +8,9 @@ CKPT_DIR = os.path.join(_ATTN_DIR, 'checkpoints')
 import torch
 from Attention.gpt.datasets.shakespeare import ShakespeareDataset
 from Attention.gpt.models.GPT import GPT
+from Attention.gpt.models.modern_gpt import ModernGPT
 from torch.utils.data import DataLoader
+import subprocess
 
 def train_model(model, epochs, train_loader,val_loader,learning_rate, device):
     
@@ -31,19 +33,19 @@ def train_model(model, epochs, train_loader,val_loader,learning_rate, device):
         
         print(f"Epoch [{epoch+1}/{epochs}], Loss: {avg_loss:.4f}")
 
-    model.eval()
-    with torch.no_grad():
-        total_loss = 0.0
-        ppl = 0.0
-        for x, y in val_loader:
-            x, y = x.to(device), y.to(device)
-            output = model(x)
-            loss = criterion(output.view(-1, output.size(-1)), y.view(-1))
-            total_loss += loss.item()
-        avg_loss = total_loss / len(val_loader)
-        print(f"Validation Loss: {avg_loss:.4f}, ppl: {torch.exp(avg_loss).item():.4f}")
-        
-    torch.save(model.state_dict(), os.path.join(CKPT_DIR, "gpt_model_10.pth"))
+        model.eval()
+        with torch.no_grad():
+            total_loss = 0.0
+            ppl = 0.0
+            for x, y in val_loader:
+                x, y = x.to(device), y.to(device)
+                output = model(x)
+                loss = criterion(output.view(-1, output.size(-1)), y.view(-1))
+                total_loss += loss.item()
+            avg_loss = total_loss / len(val_loader)
+            print(f"Validation Loss: {avg_loss:.4f}, ppl: {torch.exp(torch.tensor(avg_loss)).item():.4f}")
+        if epoch%10 == 0:
+            torch.save(model.state_dict(), os.path.join(CKPT_DIR, f"gpt_model_{epoch}.pth"))
 
 def shape_test(model,device,test = False):
     # x : [batch_size, seq_len, d_model]
@@ -66,7 +68,7 @@ if __name__ == "__main__":
     d_ff = 768  #ffn隐藏层维度
     num_layers = 6 #gpt层数
     batch_size = 64
-    epochs = 10
+    epochs = 100
     learning_rate = 1e-4
 
     # Prepare dataset and dataloader
@@ -87,9 +89,10 @@ if __name__ == "__main__":
     val_loader = DataLoader(dataset= val_dataset,batch_size = batch_size,shuffle=False)
     # Initialize model, criterion, and optimizer
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model = GPT(vocab_size, max_seq_len, d_model, num_heads, d_ff, num_layers).to(device)
-    shape_test(model,device,True)
+    model = ModernGPT(vocab_size, max_seq_len, d_model, num_heads, d_ff, num_layers).to(device)
+    shape_test(model,device,False)
 
     print(f"Using device: {device}")
     print("start training;exp0")
     train_model(model, epochs, train_loader,val_loader ,learning_rate, device)
+    subprocess.run(["shutdown","-h","now"],check=True)
