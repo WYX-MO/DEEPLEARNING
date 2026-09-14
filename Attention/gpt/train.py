@@ -53,7 +53,7 @@ def train_model(model, epochs, train_loader,val_loader,learning_rate, device):
                 total_loss += loss.item()
             avg_loss = total_loss / len(val_loader)
             logger.info(f"Validation Loss: {avg_loss:.4f}, ppl: {torch.exp(torch.tensor(avg_loss)).item():.4f}")
-        if epoch%10 == 0:
+        if epoch%10 == 0 or epoch == epochs-1:
             torch.save(model.state_dict(), os.path.join(CKPT_DIR, f"gpt_sanguo_model_{epoch}.pth"))
 
 def shape_test(model,device,test = False):
