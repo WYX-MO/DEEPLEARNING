@@ -13,3 +13,205 @@
 2026-09-14 20:55:49 [INFO] Validation Loss: 3.0140, ppl: 20.3694
 2026-09-14 21:03:56 [INFO] Epoch [2/100], Loss: 1.5288
 2026-09-14 21:04:14 [INFO] Validation Loss: 0.5133, ppl: 1.6707
+2026-09-15 00:32:51 [INFO] Epoch [1/100], Loss: 4.7072
+2026-09-15 00:33:11 [INFO] Validation Loss: 3.0004, ppl: 20.0941
+2026-09-15 00:39:21 [INFO] Epoch [1/100], Loss: 4.7071
+2026-09-15 00:39:34 [INFO] Validation Loss: 2.9942, ppl: 19.9700
+2026-09-15 00:42:44 [INFO] Epoch [2/100], Loss: 1.5253
+2026-09-15 00:42:53 [INFO] Validation Loss: 0.5163, ppl: 1.6758
+2026-09-15 00:45:52 [INFO] Epoch [3/100], Loss: 0.2963
+2026-09-15 00:46:02 [INFO] Validation Loss: 0.2065, ppl: 1.2294
+2026-09-15 00:49:01 [INFO] Epoch [4/100], Loss: 0.1717
+2026-09-15 00:49:10 [INFO] Validation Loss: 0.1590, ppl: 1.1723
+2026-09-15 00:52:09 [INFO] Epoch [5/100], Loss: 0.1384
+2026-09-15 00:52:19 [INFO] Validation Loss: 0.1384, ppl: 1.1484
+2026-09-15 00:55:18 [INFO] Epoch [6/100], Loss: 0.1210
+2026-09-15 00:55:28 [INFO] Validation Loss: 0.1263, ppl: 1.1346
+2026-09-15 00:58:27 [INFO] Epoch [7/100], Loss: 0.1099
+2026-09-15 00:58:37 [INFO] Validation Loss: 0.1186, ppl: 1.1259
+2026-09-15 01:01:37 [INFO] Epoch [8/100], Loss: 0.1018
+2026-09-15 01:01:46 [INFO] Validation Loss: 0.1135, ppl: 1.1202
+2026-09-15 01:04:46 [INFO] Epoch [9/100], Loss: 0.0958
+2026-09-15 01:04:55 [INFO] Validation Loss: 0.1087, ppl: 1.1148
+2026-09-15 01:07:55 [INFO] Epoch [10/100], Loss: 0.0910
+2026-09-15 01:08:04 [INFO] Validation Loss: 0.1060, ppl: 1.1118
+2026-09-15 01:11:03 [INFO] Epoch [11/100], Loss: 0.0872
+2026-09-15 01:11:13 [INFO] Validation Loss: 0.1032, ppl: 1.1087
+2026-09-15 01:14:12 [INFO] Epoch [12/100], Loss: 0.0841
+2026-09-15 01:14:22 [INFO] Validation Loss: 0.1010, ppl: 1.1063
+2026-09-15 01:17:20 [INFO] Epoch [13/100], Loss: 0.0814
+2026-09-15 01:17:30 [INFO] Validation Loss: 0.0988, ppl: 1.1039
+2026-09-15 01:20:29 [INFO] Epoch [14/100], Loss: 0.0791
+2026-09-15 01:20:39 [INFO] Validation Loss: 0.0980, ppl: 1.1030
+2026-09-15 01:23:37 [INFO] Epoch [15/100], Loss: 0.0771
+2026-09-15 01:23:47 [INFO] Validation Loss: 0.0966, ppl: 1.1015
+2026-09-15 01:26:46 [INFO] Epoch [16/100], Loss: 0.0754
+2026-09-15 01:26:55 [INFO] Validation Loss: 0.0961, ppl: 1.1009
+2026-09-15 01:29:54 [INFO] Epoch [17/100], Loss: 0.0739
+2026-09-15 01:30:04 [INFO] Validation Loss: 0.0950, ppl: 1.0997
+2026-09-15 01:33:02 [INFO] Epoch [18/100], Loss: 0.0725
+2026-09-15 01:33:12 [INFO] Validation Loss: 0.0939, ppl: 1.0985
+2026-09-15 01:36:10 [INFO] Epoch [19/100], Loss: 0.0714
+2026-09-15 01:36:20 [INFO] Validation Loss: 0.0934, ppl: 1.0979
+2026-09-15 01:39:19 [INFO] Epoch [20/100], Loss: 0.0703
+2026-09-15 01:39:28 [INFO] Validation Loss: 0.0930, ppl: 1.0974
+2026-09-15 01:42:27 [INFO] Epoch [21/100], Loss: 0.0693
+2026-09-15 01:42:36 [INFO] Validation Loss: 0.0926, ppl: 1.0970
+2026-09-15 01:45:35 [INFO] Epoch [22/100], Loss: 0.0685
+2026-09-15 01:45:45 [INFO] Validation Loss: 0.0929, ppl: 1.0974
+2026-09-15 01:48:43 [INFO] Epoch [23/100], Loss: 0.0677
+2026-09-15 01:48:53 [INFO] Validation Loss: 0.0921, ppl: 1.0965
+2026-09-15 01:51:51 [INFO] Epoch [24/100], Loss: 0.0670
+2026-09-15 01:52:01 [INFO] Validation Loss: 0.0914, ppl: 1.0957
+2026-09-15 01:54:59 [INFO] Epoch [25/100], Loss: 0.0664
+2026-09-15 01:55:09 [INFO] Validation Loss: 0.0913, ppl: 1.0956
+2026-09-15 01:58:07 [INFO] Epoch [26/100], Loss: 0.0658
+2026-09-15 01:58:17 [INFO] Validation Loss: 0.0904, ppl: 1.0947
+2026-09-15 02:01:15 [INFO] Epoch [27/100], Loss: 0.0652
+2026-09-15 02:01:25 [INFO] Validation Loss: 0.0901, ppl: 1.0943
+2026-09-15 02:04:23 [INFO] Epoch [28/100], Loss: 0.0647
+2026-09-15 02:04:33 [INFO] Validation Loss: 0.0901, ppl: 1.0943
+2026-09-15 02:07:31 [INFO] Epoch [29/100], Loss: 0.0642
+2026-09-15 02:07:41 [INFO] Validation Loss: 0.0898, ppl: 1.0940
+2026-09-15 02:10:39 [INFO] Epoch [30/100], Loss: 0.0638
+2026-09-15 02:10:49 [INFO] Validation Loss: 0.0902, ppl: 1.0943
+2026-09-15 02:13:47 [INFO] Epoch [31/100], Loss: 0.0633
+2026-09-15 02:13:57 [INFO] Validation Loss: 0.0895, ppl: 1.0936
+2026-09-15 02:16:55 [INFO] Epoch [32/100], Loss: 0.0630
+2026-09-15 02:17:05 [INFO] Validation Loss: 0.0888, ppl: 1.0928
+2026-09-15 02:20:03 [INFO] Epoch [33/100], Loss: 0.0626
+2026-09-15 02:20:13 [INFO] Validation Loss: 0.0890, ppl: 1.0931
+2026-09-15 02:23:12 [INFO] Epoch [34/100], Loss: 0.0622
+2026-09-15 02:23:21 [INFO] Validation Loss: 0.0889, ppl: 1.0930
+2026-09-15 02:26:20 [INFO] Epoch [35/100], Loss: 0.0619
+2026-09-15 02:26:30 [INFO] Validation Loss: 0.0885, ppl: 1.0926
+2026-09-15 02:29:29 [INFO] Epoch [36/100], Loss: 0.0616
+2026-09-15 02:29:38 [INFO] Validation Loss: 0.0885, ppl: 1.0925
+2026-09-15 02:32:37 [INFO] Epoch [37/100], Loss: 0.0613
+2026-09-15 02:32:47 [INFO] Validation Loss: 0.0889, ppl: 1.0930
+2026-09-15 02:35:46 [INFO] Epoch [38/100], Loss: 0.0611
+2026-09-15 02:35:56 [INFO] Validation Loss: 0.0879, ppl: 1.0919
+2026-09-15 02:38:55 [INFO] Epoch [39/100], Loss: 0.0608
+2026-09-15 02:39:04 [INFO] Validation Loss: 0.0880, ppl: 1.0920
+2026-09-15 02:42:03 [INFO] Epoch [40/100], Loss: 0.0606
+2026-09-15 02:42:13 [INFO] Validation Loss: 0.0880, ppl: 1.0919
+2026-09-15 02:45:12 [INFO] Epoch [41/100], Loss: 0.0603
+2026-09-15 02:45:22 [INFO] Validation Loss: 0.0879, ppl: 1.0918
+2026-09-15 02:48:21 [INFO] Epoch [42/100], Loss: 0.0601
+2026-09-15 02:48:31 [INFO] Validation Loss: 0.0875, ppl: 1.0915
+2026-09-15 02:51:30 [INFO] Epoch [43/100], Loss: 0.0599
+2026-09-15 02:51:40 [INFO] Validation Loss: 0.0876, ppl: 1.0916
+2026-09-15 02:54:39 [INFO] Epoch [44/100], Loss: 0.0597
+2026-09-15 02:54:48 [INFO] Validation Loss: 0.0872, ppl: 1.0911
+2026-09-15 02:57:48 [INFO] Epoch [45/100], Loss: 0.0595
+2026-09-15 02:57:57 [INFO] Validation Loss: 0.0877, ppl: 1.0916
+2026-09-15 03:00:56 [INFO] Epoch [46/100], Loss: 0.0593
+2026-09-15 03:01:06 [INFO] Validation Loss: 0.0873, ppl: 1.0912
+2026-09-15 03:04:05 [INFO] Epoch [47/100], Loss: 0.0591
+2026-09-15 03:04:15 [INFO] Validation Loss: 0.0878, ppl: 1.0918
+2026-09-15 03:07:13 [INFO] Epoch [48/100], Loss: 0.0590
+2026-09-15 03:07:23 [INFO] Validation Loss: 0.0875, ppl: 1.0914
+2026-09-15 03:10:22 [INFO] Epoch [49/100], Loss: 0.0588
+2026-09-15 03:10:31 [INFO] Validation Loss: 0.0871, ppl: 1.0910
+2026-09-15 03:13:30 [INFO] Epoch [50/100], Loss: 0.0587
+2026-09-15 03:13:40 [INFO] Validation Loss: 0.0868, ppl: 1.0907
+2026-09-15 03:16:38 [INFO] Epoch [51/100], Loss: 0.0585
+2026-09-15 03:16:48 [INFO] Validation Loss: 0.0867, ppl: 1.0906
+2026-09-15 03:19:46 [INFO] Epoch [52/100], Loss: 0.0584
+2026-09-15 03:19:56 [INFO] Validation Loss: 0.0863, ppl: 1.0902
+2026-09-15 03:22:55 [INFO] Epoch [53/100], Loss: 0.0582
+2026-09-15 03:23:04 [INFO] Validation Loss: 0.0866, ppl: 1.0905
+2026-09-15 03:26:03 [INFO] Epoch [54/100], Loss: 0.0581
+2026-09-15 03:26:13 [INFO] Validation Loss: 0.0870, ppl: 1.0909
+2026-09-15 03:29:11 [INFO] Epoch [55/100], Loss: 0.0580
+2026-09-15 03:29:21 [INFO] Validation Loss: 0.0868, ppl: 1.0906
+2026-09-15 03:32:19 [INFO] Epoch [56/100], Loss: 0.0578
+2026-09-15 03:32:29 [INFO] Validation Loss: 0.0865, ppl: 1.0903
+2026-09-15 03:35:27 [INFO] Epoch [57/100], Loss: 0.0577
+2026-09-15 03:35:37 [INFO] Validation Loss: 0.0870, ppl: 1.0909
+2026-09-15 03:38:35 [INFO] Epoch [58/100], Loss: 0.0576
+2026-09-15 03:38:45 [INFO] Validation Loss: 0.0863, ppl: 1.0901
+2026-09-15 03:41:43 [INFO] Epoch [59/100], Loss: 0.0574
+2026-09-15 03:41:53 [INFO] Validation Loss: 0.0864, ppl: 1.0902
+2026-09-15 03:44:51 [INFO] Epoch [60/100], Loss: 0.0574
+2026-09-15 03:45:01 [INFO] Validation Loss: 0.0862, ppl: 1.0901
+2026-09-15 03:47:59 [INFO] Epoch [61/100], Loss: 0.0573
+2026-09-15 03:48:09 [INFO] Validation Loss: 0.0869, ppl: 1.0908
+2026-09-15 03:51:08 [INFO] Epoch [62/100], Loss: 0.0571
+2026-09-15 03:51:17 [INFO] Validation Loss: 0.0864, ppl: 1.0903
+2026-09-15 03:54:16 [INFO] Epoch [63/100], Loss: 0.0570
+2026-09-15 03:54:26 [INFO] Validation Loss: 0.0865, ppl: 1.0904
+2026-09-15 03:57:24 [INFO] Epoch [64/100], Loss: 0.0569
+2026-09-15 03:57:34 [INFO] Validation Loss: 0.0862, ppl: 1.0900
+2026-09-15 04:00:33 [INFO] Epoch [65/100], Loss: 0.0569
+2026-09-15 04:00:42 [INFO] Validation Loss: 0.0863, ppl: 1.0901
+2026-09-15 04:03:41 [INFO] Epoch [66/100], Loss: 0.0568
+2026-09-15 04:03:51 [INFO] Validation Loss: 0.0861, ppl: 1.0899
+2026-09-15 04:06:49 [INFO] Epoch [67/100], Loss: 0.0567
+2026-09-15 04:06:59 [INFO] Validation Loss: 0.0863, ppl: 1.0901
+2026-09-15 04:09:58 [INFO] Epoch [68/100], Loss: 0.0566
+2026-09-15 04:10:08 [INFO] Validation Loss: 0.0853, ppl: 1.0891
+2026-09-15 04:13:06 [INFO] Epoch [69/100], Loss: 0.0565
+2026-09-15 04:13:16 [INFO] Validation Loss: 0.0861, ppl: 1.0899
+2026-09-15 04:16:15 [INFO] Epoch [70/100], Loss: 0.0564
+2026-09-15 04:16:25 [INFO] Validation Loss: 0.0858, ppl: 1.0896
+2026-09-15 04:19:24 [INFO] Epoch [71/100], Loss: 0.0563
+2026-09-15 04:19:33 [INFO] Validation Loss: 0.0861, ppl: 1.0899
+2026-09-15 04:22:32 [INFO] Epoch [72/100], Loss: 0.0562
+2026-09-15 04:22:42 [INFO] Validation Loss: 0.0858, ppl: 1.0896
+2026-09-15 04:25:41 [INFO] Epoch [73/100], Loss: 0.0562
+2026-09-15 04:25:51 [INFO] Validation Loss: 0.0854, ppl: 1.0892
+2026-09-15 04:28:50 [INFO] Epoch [74/100], Loss: 0.0561
+2026-09-15 04:29:00 [INFO] Validation Loss: 0.0861, ppl: 1.0899
+2026-09-15 04:31:59 [INFO] Epoch [75/100], Loss: 0.0560
+2026-09-15 04:32:08 [INFO] Validation Loss: 0.0853, ppl: 1.0890
+2026-09-15 04:35:07 [INFO] Epoch [76/100], Loss: 0.0560
+2026-09-15 04:35:17 [INFO] Validation Loss: 0.0854, ppl: 1.0891
+2026-09-15 04:38:15 [INFO] Epoch [77/100], Loss: 0.0559
+2026-09-15 04:38:25 [INFO] Validation Loss: 0.0856, ppl: 1.0893
+2026-09-15 04:41:24 [INFO] Epoch [78/100], Loss: 0.0558
+2026-09-15 04:41:33 [INFO] Validation Loss: 0.0855, ppl: 1.0893
+2026-09-15 04:44:32 [INFO] Epoch [79/100], Loss: 0.0558
+2026-09-15 04:44:42 [INFO] Validation Loss: 0.0863, ppl: 1.0902
+2026-09-15 04:47:40 [INFO] Epoch [80/100], Loss: 0.0557
+2026-09-15 04:47:50 [INFO] Validation Loss: 0.0861, ppl: 1.0899
+2026-09-15 04:50:48 [INFO] Epoch [81/100], Loss: 0.0556
+2026-09-15 04:50:58 [INFO] Validation Loss: 0.0854, ppl: 1.0891
+2026-09-15 04:53:56 [INFO] Epoch [82/100], Loss: 0.0556
+2026-09-15 04:54:06 [INFO] Validation Loss: 0.0857, ppl: 1.0894
+2026-09-15 04:57:04 [INFO] Epoch [83/100], Loss: 0.0555
+2026-09-15 04:57:14 [INFO] Validation Loss: 0.0858, ppl: 1.0896
+2026-09-15 05:00:12 [INFO] Epoch [84/100], Loss: 0.0554
+2026-09-15 05:00:22 [INFO] Validation Loss: 0.0856, ppl: 1.0893
+2026-09-15 05:03:20 [INFO] Epoch [85/100], Loss: 0.0554
+2026-09-15 05:03:30 [INFO] Validation Loss: 0.0855, ppl: 1.0893
+2026-09-15 05:06:28 [INFO] Epoch [86/100], Loss: 0.0553
+2026-09-15 05:06:38 [INFO] Validation Loss: 0.0852, ppl: 1.0890
+2026-09-15 05:09:36 [INFO] Epoch [87/100], Loss: 0.0553
+2026-09-15 05:09:46 [INFO] Validation Loss: 0.0854, ppl: 1.0891
+2026-09-15 05:12:44 [INFO] Epoch [88/100], Loss: 0.0552
+2026-09-15 05:12:54 [INFO] Validation Loss: 0.0859, ppl: 1.0897
+2026-09-15 05:15:52 [INFO] Epoch [89/100], Loss: 0.0552
+2026-09-15 05:16:02 [INFO] Validation Loss: 0.0853, ppl: 1.0891
+2026-09-15 05:19:00 [INFO] Epoch [90/100], Loss: 0.0551
+2026-09-15 05:19:10 [INFO] Validation Loss: 0.0858, ppl: 1.0896
+2026-09-15 05:22:08 [INFO] Epoch [91/100], Loss: 0.0551
+2026-09-15 05:22:18 [INFO] Validation Loss: 0.0849, ppl: 1.0886
+2026-09-15 05:25:17 [INFO] Epoch [92/100], Loss: 0.0550
+2026-09-15 05:25:26 [INFO] Validation Loss: 0.0854, ppl: 1.0892
+2026-09-15 05:28:25 [INFO] Epoch [93/100], Loss: 0.0550
+2026-09-15 05:28:35 [INFO] Validation Loss: 0.0857, ppl: 1.0895
+2026-09-15 05:31:33 [INFO] Epoch [94/100], Loss: 0.0549
+2026-09-15 05:31:43 [INFO] Validation Loss: 0.0856, ppl: 1.0893
+2026-09-15 05:34:42 [INFO] Epoch [95/100], Loss: 0.0549
+2026-09-15 05:34:51 [INFO] Validation Loss: 0.0856, ppl: 1.0894
+2026-09-15 05:37:50 [INFO] Epoch [96/100], Loss: 0.0548
+2026-09-15 05:38:00 [INFO] Validation Loss: 0.0857, ppl: 1.0895
+2026-09-15 05:40:59 [INFO] Epoch [97/100], Loss: 0.0548
+2026-09-15 05:41:08 [INFO] Validation Loss: 0.0851, ppl: 1.0888
+2026-09-15 05:44:07 [INFO] Epoch [98/100], Loss: 0.0548
+2026-09-15 05:44:17 [INFO] Validation Loss: 0.0854, ppl: 1.0892
+2026-09-15 05:47:16 [INFO] Epoch [99/100], Loss: 0.0547
+2026-09-15 05:47:25 [INFO] Validation Loss: 0.0852, ppl: 1.0889
+2026-09-15 05:50:24 [INFO] Epoch [100/100], Loss: 0.0547
+2026-09-15 05:50:34 [INFO] Validation Loss: 0.0850, ppl: 1.0887

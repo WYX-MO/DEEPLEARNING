@@ -25,7 +25,7 @@ def train_model(model, epochs, train_loader,val_loader,learning_rate, device):
     logger = get_logger()
     
     criterion = torch.nn.CrossEntropyLoss()
-    optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate)
+    optimizer = torch.optim.AdamW(model.parameters(), lr=learning_rate,fused = True)
     model.train()
     # Training loop
     for epoch in range(epochs):
@@ -34,11 +34,15 @@ def train_model(model, epochs, train_loader,val_loader,learning_rate, device):
         for  b_idx, (x, y) in enumerate(train_loader):
             x, y = x.to(device), y.to(device)
             optimizer.zero_grad()
-            output = model(x)
-            loss = criterion(output.view(-1, output.size(-1)), y.view(-1))
-            loss.backward()
+            # bf16 autocast optimize
+            with torch.autocast(device_type = "cuda",
+                                dtype = torch.bfloat16):
+                output = model(x)
+                loss = criterion(output.view(-1, output.size(-1)), y.view(-1))
+                loss.backward()
             optimizer.step()
-            total_loss += loss.item()
+            total_loss += loss.detach()
+            avg_loss = (total_loss / len(train_loader)).item()
         avg_loss = total_loss / len(train_loader)
         
         logger.info(f"Epoch [{epoch+1}/{epochs}], Loss: {avg_loss:.4f}")
@@ -54,7 +58,7 @@ def train_model(model, epochs, train_loader,val_loader,learning_rate, device):
             avg_loss = total_loss / len(val_loader)
             logger.info(f"Validation Loss: {avg_loss:.4f}, ppl: {torch.exp(torch.tensor(avg_loss)).item():.4f}")
         if epoch%10 == 0 or epoch == epochs-1:
-            torch.save(model.state_dict(), os.path.join(CKPT_DIR, f"gpt_sanguo_model_{epoch}.pth"))
+            torch.save(model._orig_mod.state_dict(), os.path.join(CKPT_DIR, f"gpt_sanguo_model_{epoch}.pth"))
 
 def shape_test(model,device,test = False):
     # x : [batch_size, seq_len, d_model]
@@ -80,6 +84,8 @@ if __name__ == "__main__":
     epochs = 100
     learning_rate = 1e-4
 
+    torch.backends.cuda.matmul.allow_tf32 = True
+    
     # Prepare dataset and dataloader
     data_path_shakes = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..","data", "shakespeare.txt")
     dataset_shakes = ShakespeareDataset(data_path_shakes, max_seq_len)
@@ -107,6 +113,9 @@ if __name__ == "__main__":
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = ModernGPT(vocab_size, max_seq_len, d_model, num_heads, d_ff, num_layers).to(device)
     shape_test(model,device,False)
+    # compile model optimize
+    model = torch.compile(model)
+    
 
     print(f"Using device: {device}")
     print("start training;exp1")

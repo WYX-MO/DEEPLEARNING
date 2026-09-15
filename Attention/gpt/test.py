@@ -13,9 +13,11 @@ import torch.nn.functional as F
 from Attention.gpt.models.GPT import GPT
 from Attention.gpt.models.modern_gpt import ModernGPT
 from Attention.gpt.datasets.shakespeare import ShakespeareDataset
+from Attention.gpt.datasets.sanguo import SanGuoDataset
+import sentencepiece as spm
 
 # 必须与 gpt/train.py 保持一致
-MAX_SEQ_LEN = 32
+MAX_SEQ_LEN = 128
 D_MODEL = 192
 NUM_HEADS = 4
 D_FF = 768
@@ -23,14 +25,16 @@ NUM_LAYERS = 6
 
 HERE = os.path.dirname(os.path.abspath(__file__))            # Attention/gpt
 _ATTN_DIR = os.path.dirname(HERE)                            # Attention
-CKPT = os.path.join(_ATTN_DIR, 'checkpoints', 'gpt_model_90.pth')
-DATA = os.path.join(_ATTN_DIR, 'data', 'shakespeare.txt')
+CKPT = os.path.join(_ATTN_DIR, 'checkpoints', 'gpt_sanguo_model_99.pth')
+DATA = os.path.join(_ATTN_DIR, 'data', 'sanGuo', 'all.txt')
+SPM_MODEL = os.path.join(_ATTN_DIR, 'data', 'sanGuo', 'zh.model')     
 
 
 def load_model():
     # 复用 Dataset 重建词表，保证 char2idx / idx2char 与训练时完全一致
-    ds = ShakespeareDataset(DATA, MAX_SEQ_LEN)
-    model = ModernGPT(ds.chars, MAX_SEQ_LEN, D_MODEL, NUM_HEADS, D_FF, NUM_LAYERS)
+    sp = spm.SentencePieceProcessor(model_file=str(SPM_MODEL))
+    ds = SanGuoDataset(DATA, MAX_SEQ_LEN,sp = sp)
+    model = ModernGPT(ds.vocab_size, MAX_SEQ_LEN, D_MODEL, NUM_HEADS, D_FF, NUM_LAYERS)
     state = torch.load(CKPT, map_location='cpu')
     model.load_state_dict(state)
     model.eval()
@@ -78,7 +82,7 @@ def main():
     args = ap.parse_args()
 
     model, ds = load_model()
-    print(f'loaded {CKPT}  |  vocab={ds.chars}  max_seq_len={MAX_SEQ_LEN}')
+    print(f'loaded {CKPT}  |  vocab={ds.vocab_size}  max_seq_len={MAX_SEQ_LEN}')
     print('输入 seq 回车查看输出；直接回车退出。\n')
 
     while True:
