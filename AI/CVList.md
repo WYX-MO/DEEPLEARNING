@@ -36,4 +36,4 @@ experiments:
 1.莎士比亚重新30epoch，记录loss
 2.kvcache
 3.优化训练速度并用莎士比亚对比
-4.三国
+4.三国实验对比
