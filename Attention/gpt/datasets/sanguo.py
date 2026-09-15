@@ -52,7 +52,9 @@ class SanGuoDataset(Dataset):
         x = self.data[i     : i + self.seq_len]        # [L]  long
         y = self.data[i + 1 : i + 1 + self.seq_len]    # [L]  long
         return x, y
-
+    def encode(self, text):
+        """文本 -> id 序列，方便外部调用。"""
+        return self.sp.encode(text)
     def decode(self, ids):
         """id -> 文本，方便肉眼检查样本。"""
         return self.sp.decode(ids)

@@ -43,7 +43,8 @@ def load_model():
 
 def encode(ds, seq):
     """字符 -> id，丢弃词表外的字符，并截断到 max_seq_len。"""
-    ids = [ds.char2idx[c] for c in seq if c in ds.char2idx]
+    #ids = [ds.char2idx[c] for c in seq if c in ds.char2idx]
+    ids = ds.encode(seq)
     if not ids:
         raise ValueError('seq 中没有任何词表内的字符')
     return ids[-MAX_SEQ_LEN:]
@@ -55,7 +56,7 @@ def next_char_probs(model, ds, ids, topk=5):
     logits = model(x)[0, -1]                       # [vocab]
     probs = F.softmax(logits, dim=-1)
     vals, idx = probs.topk(topk)
-    return [(ds.idx2char[int(i)], float(v)) for v, i in zip(vals, idx)]
+    return [(ds.decode([i]), float(v)) for v, i in zip(vals, idx)]
 
 
 @torch.no_grad()
