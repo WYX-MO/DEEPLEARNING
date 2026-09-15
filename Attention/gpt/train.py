@@ -42,8 +42,7 @@ def train_model(model, epochs, train_loader,val_loader,learning_rate, device):
                 loss.backward()
             optimizer.step()
             total_loss += loss.detach()
-            avg_loss = (total_loss / len(train_loader)).item()
-        avg_loss = total_loss / len(train_loader)
+        avg_loss = (total_loss / len(train_loader)).item()
         
         logger.info(f"Epoch [{epoch+1}/{epochs}], Loss: {avg_loss:.4f}")
         model.eval()
@@ -90,23 +89,16 @@ if __name__ == "__main__":
     data_path_shakes = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..","data", "shakespeare.txt")
     dataset_shakes = ShakespeareDataset(data_path_shakes, max_seq_len)
 
-    #sanGuo dataset
-    data_path_sanguo = os.path.join(os.path.dirname(os.path.abspath(__file__)),"..","data","sanGuo","all.txt")
+    # sanGuo dataset —— 按「集」切分：train.txt = 第 1-67 集，val.txt = 第 68-74 集。
+    # 不能用 random_split：SanGuoDataset 是步长 1 的滑窗，索引 i 和 i+1 的窗口共享
+    # 127/128 个 token，随机切出来的 val 集与 train 集几乎完全重叠，
+    # 验证损失会一路贴着训练损失（实测 ppl 1.089），完全没有泛化意义。
     sp = spm.SentencePieceProcessor(model_file=str(SPM_MODEL))
-    dataset_sanguo = SanGuoDataset(data_path_sanguo,max_seq_len,sp)
+    data_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data", "sanGuo")
+    train_dataset = SanGuoDataset(os.path.join(data_dir, "train.txt"), max_seq_len, sp)
+    val_dataset = SanGuoDataset(os.path.join(data_dir, "val.txt"), max_seq_len, sp)
 
-
-    dataset = dataset_sanguo
-    #build valid dataset
-    train_size = int(0.9*len(dataset))
-    val_size = len(dataset)-train_size
-    train_dataset, val_dataset = torch.utils.data.random_split(
-    dataset,
-    [train_size, val_size],
-    generator=torch.Generator().manual_seed(42)
-    )
-
-    vocab_size = dataset.vocab_size  # Adjust based on dataset
+    vocab_size = train_dataset.vocab_size
     train_loader = DataLoader(dataset= train_dataset, batch_size=batch_size, shuffle=True)
     val_loader = DataLoader(dataset= val_dataset,batch_size = batch_size,shuffle=False)
     # Initialize model, criterion, and optimizer

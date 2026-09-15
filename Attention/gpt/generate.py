@@ -12,9 +12,9 @@ from Attention.gpt.datasets.sanguo import SanGuoDataset
 import sentencepiece as spm
 HERE = os.path.dirname(os.path.abspath(__file__))            # Attention/gpt
 _ATTN_DIR = os.path.dirname(HERE)                            # Attention
-CKPT = os.path.join(_ATTN_DIR, 'checkpoints', 'gpt_sanguo_model_99.pth')
+CKPT = os.path.join(_ATTN_DIR, 'checkpoints', 'gpt_sanguo_model_40.pth')
 file_path = os.path.join(_ATTN_DIR, 'data', 'sanGuo','all.txt')
-SPM_MODEL = os.path.join(_ATTN_DIR , 'data' , 'sanGuo' ,'zh.model' )     
+SPM_MODEL = os.path.join(_ATTN_DIR, 'data', 'sanGuo', 'zh.model')
 
 
 # 必须与 gpt/train.py 保持一致
