@@ -110,7 +110,7 @@ def train_models(model, device, data_loader, data_loader_test,
 if __name__ == "__main__":
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
     print("using device:", device)
-
+    
     train_loader, test_loader = get_data_loaders(batch_size=BATCH_SIZE)
     vocab_size = get_vocab_size()
     print("vocab_size:", vocab_size)
