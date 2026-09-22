@@ -41,7 +41,7 @@ class CLIP(nn.Module):
         batch_size = image.shape[0]
         _,image_features = self.image_encoder(image)
         text_features = self.text_encoder(text) # (B, embed_dim)
-
+        
         text_emb = self.linear_text(text_features) # (B, same_dim)
         image_emb = self.linear_img(image_features) # (B, same_dim)
 
@@ -49,6 +49,7 @@ class CLIP(nn.Module):
         text_emb = F.normalize(text_emb, dim=-1)
 
         similarity = image_emb @ text_emb.T # (B, B)
+
         # label = torch.arange(batch_size).to(image_emb.device)
         # loss_i = F.cross_entropy(similarity, label)
         # loss_t = F.cross_entropy(similarity.T, label)
@@ -61,5 +62,6 @@ if __name__ == "__main__":
     text = torch.randint(0, vocab_size, (4, 20))
     model = CLIP(vocab_size, d_model=192, embed_dim=192)
     similarity = model(image, text)
-
+    
     print(similarity.shape)
+
