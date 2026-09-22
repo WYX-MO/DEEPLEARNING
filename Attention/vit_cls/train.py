@@ -10,7 +10,7 @@ CKPT_DIR = os.path.join(_ATTN_DIR, 'checkpoints')
 import torch.nn as nn
 import torch
 from Attention.vit_cls.datasets.cifar10 import get_data_loaders
-from Attention.common.vision.Vit import VitionTransformer
+from Attention.common.vision.Vit import VisionTransformer
 
 def train_models(model,epoch=100,device=None,data_loader = None,data_loader_test = None):
     model = model.to(device)
@@ -26,7 +26,7 @@ def train_models(model,epoch=100,device=None,data_loader = None,data_loader_test
             inputs = inputs.to(device)
             labels = labels.to(device)
             optimizer.zero_grad()
-            outputs = model(inputs)
+            outputs,cls_token = model(inputs)
             loss = criterion(outputs, labels)
             loss.backward()
             optimizer.step()
@@ -44,7 +44,7 @@ def train_models(model,epoch=100,device=None,data_loader = None,data_loader_test
             for inputs, labels in data_loader_test:
                 inputs = inputs.to(device)
                 labels = labels.to(device)
-                outputs = model(inputs)
+                outputs, cls_token = model(inputs)
                 _, predicted = torch.max(outputs, 1)
                 total += labels.size(0)
                 correct += (predicted == labels).sum().item()
@@ -57,7 +57,7 @@ def train_models(model,epoch=100,device=None,data_loader = None,data_loader_test
 
 if __name__ == "__main__":
     data_loader, data_loader_test = get_data_loaders()
-    model = VitionTransformer(in_channels=3, patch_size=4, d_model=192, num_layers=12, num_heads=3, mlp_ratio=4.0, num_classes=10)
+    model = VisionTransformer(in_channels=3, patch_size=4, d_model=192, num_layers=12, num_heads=3, mlp_ratio=4.0, num_classes=10)
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
     print("using device:", device)
     print("start training;exp2")

@@ -40,10 +40,12 @@ class VisionTransformer(nn.Module):
             x = transformer_block(x)  # (B, num_patches+1, d_model)
         x = self.head_dropout(x)
         if self.cls is True:
+            cls_token = x[:,0]
             x = self.clsHead(x[:, 0])  # Use the CLS token for classification
+            return x,cls_token
         else:
             x = x[:, 1:]  # Return logits for all tokens except CLS
-        return x
+            return x
 
 if __name__ == "__main__":
     model = VisionTransformer(in_channels=3, patch_size=4, d_model=192, num_layers=12, num_heads=3, mlp_ratio=4.0, num_classes=10, cls=True )

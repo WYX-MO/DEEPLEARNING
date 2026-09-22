@@ -1,0 +1,43 @@
+<!doctype html><html lang="zh"><head><meta charset="utf-8">
+<title>zeros / ones / arange / linspace / full · torch 速查</title><style>
+body{font-family:-apple-system,'PingFang SC',Helvetica,Arial,sans-serif;
+     max-width:920px;margin:24px auto;padding:0 20px;line-height:1.7;color:#222}
+h1{border-bottom:3px solid #4a6;padding-bottom:8px}
+h2{color:#345;border-left:5px solid #69c;padding-left:10px;margin-top:28px}
+.tag{display:inline-block;background:#eef;color:#45c;border-radius:4px;
+     padding:2px 10px;font-size:13px;margin-left:8px}
+table{border-collapse:collapse;width:100%;margin:8px 0}
+th,td{border:1px solid #ddd;padding:6px 10px;text-align:left;font-size:14px}
+th{background:#f4f6fa}
+pre{background:#0f1626;color:#d7e0ee;padding:12px;border-radius:8px;
+    overflow-x:auto;font-size:13px;line-height:1.5}
+pre.out{background:#f4f9f4;color:#1d3;border:1px solid #bec;color:#14532d}
+.note{color:#666;font-size:13px}
+.src{color:#999;font-size:12px;margin-top:4px}
+</style></head><body>
+<h1>zeros / ones / arange / linspace / full <span class="tag">张量创建</span></h1>
+<p>按规则填充的张量。tril 掩码、位置 id、mask 都用这些造。eye 造单位阵。</p>
+<h2>参数</h2>
+<table><tr><th style="width:30%">参数</th><th>说明</th></tr><tr><td><code>zeros/ones(*size)</code></td><td>全 0 / 全 1</td></tr><tr><td><code>arange(start, end, step)</code></td><td>等差整数/浮点序列，不含 end</td></tr><tr><td><code>linspace(s, e, n)</code></td><td>s..e 均分 n 个点</td></tr><tr><td><code>full(*size, value)</code></td><td>填同一个值</td></tr></table>
+<h2>要点 / 坑</h2><ul><li>arange 的 end 是开区间；linspace 是闭区间。</li><li>要造下三角 mask：tril(torch.ones(L, L))。</li></ul>
+<h2>示例（本机 torch 真实运行）</h2>
+<pre>
+import torch
+print(torch.zeros(2, 3))
+print(torch.arange(0, 5))          # [0,1,2,3,4]
+print(torch.linspace(0, 1, 5))     # 0..1 共 5 个
+print(torch.full((2, 2), -1))
+print(torch.eye(3))                # 单位阵
+</pre>
+<pre class="out">tensor([[0., 0., 0.],
+        [0., 0., 0.]])
+tensor([0, 1, 2, 3, 4])
+tensor([0.0000, 0.2500, 0.5000, 0.7500, 1.0000])
+tensor([[-1, -1],
+        [-1, -1]])
+tensor([[1., 0., 0.],
+        [0., 1., 0.],
+        [0., 0., 1.]])
+</pre>
+<p class="src">来源: 自建知识库 + 本机 torch 执行结果（非官网）· 生成于 2026-09-19 16:21</p>
+</body></html>

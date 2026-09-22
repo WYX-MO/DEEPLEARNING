@@ -1,0 +1,40 @@
+<!doctype html><html lang="zh"><head><meta charset="utf-8">
+<title>nn.CrossEntropyLoss · torch 速查</title><style>
+body{font-family:-apple-system,'PingFang SC',Helvetica,Arial,sans-serif;
+     max-width:920px;margin:24px auto;padding:0 20px;line-height:1.7;color:#222}
+h1{border-bottom:3px solid #4a6;padding-bottom:8px}
+h2{color:#345;border-left:5px solid #69c;padding-left:10px;margin-top:28px}
+.tag{display:inline-block;background:#eef;color:#45c;border-radius:4px;
+     padding:2px 10px;font-size:13px;margin-left:8px}
+table{border-collapse:collapse;width:100%;margin:8px 0}
+th,td{border:1px solid #ddd;padding:6px 10px;text-align:left;font-size:14px}
+th{background:#f4f6fa}
+pre{background:#0f1626;color:#d7e0ee;padding:12px;border-radius:8px;
+    overflow-x:auto;font-size:13px;line-height:1.5}
+pre.out{background:#f4f9f4;color:#1d3;border:1px solid #bec;color:#14532d}
+.note{color:#666;font-size:13px}
+.src{color:#999;font-size:12px;margin-top:4px}
+</style></head><body>
+<h1>nn.CrossEntropyLoss <span class="tag">损失</span></h1>
+<p>分类交叉熵。输入是『未过 softmax 的 logits』(B, C) 和类别下标 (B,)；它内部自动做 softmax + log + NLL。ignore_index 让指定类别的样本不进 loss——图像描述里用来忽略 &lt;pad&gt;。</p>
+<h2>参数</h2>
+<table><tr><th style="width:30%">参数</th><th>说明</th></tr><tr><td><code>input</code></td><td>logits，形状 (B, C) 或 (B, L, C) 需自己 reshape</td></tr><tr><td><code>target</code></td><td>类别下标 long，(B,)</td></tr><tr><td><code>ignore_index</code></td><td>该下标不参与 loss，常用于 padding</td></tr></table>
+<h2>要点 / 坑</h2><ul><li>不要先手动 softmax 再喂它（会重复 softmax）。</li><li>loss 平均的是『被计入的』样本/词，pad 位置不影响分母。</li></ul>
+<h2>示例（本机 torch 真实运行）</h2>
+<pre>
+import torch, torch.nn as nn
+logits = torch.randn(3, 5)          # 3 个样本，5 类
+target = torch.tensor([0, 2, 1])
+ce = nn.CrossEntropyLoss()
+print(&quot;普通 CE:&quot;, ce(logits, target).item())
+
+# 模拟变长句子 padding: 某些位置不参与
+ce_ig = nn.CrossEntropyLoss(ignore_index=0)   # 0 是 &lt;pad&gt;
+t = torch.tensor([0, 2, 0])                   # 位置0和2被忽略，只剩1个在算
+print(&quot;ignore 后:&quot;, ce_ig(logits, t).item())
+</pre>
+<pre class="out">普通 CE: 1.0807790756225586
+ignore 后: 1.6483161449432373
+</pre>
+<p class="src">来源: 自建知识库 + 本机 torch 执行结果（非官网）· 生成于 2026-09-19 16:23</p>
+</body></html>

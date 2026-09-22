@@ -4,4 +4,5 @@ Exp002,9460698,Vit,all,0.0001,64,50,none,83.10%,add some regularzation and more 
 Exp003-imageCaption,none,Vit+decoder,
 Exp004,none,Vit+decoder,
 Exp005,none,
-Exp006-Minigpt,
+Exp006-Minigpt-shakes,
+Exp007-Minigpt-sanGuo,none,minigpt,none,0.0001,64,100,none,none,first experiment has a bad performence;模型出现背书；逐字复读的现象；怀疑是token频率过低
