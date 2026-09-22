@@ -11,6 +11,12 @@ from Attention.common.vision.PositionEncoding import PositionEncoding
 from Attention.common.vision.PatchEmbeding import PatchEmbeding
 
 class VisionTransformer(nn.Module):
+    """
+    if cls == True:
+        return cls token
+    else:
+        return all tokens except cls token
+    """
     def __init__(self, in_channels=3, patch_size=4, d_model=192, num_layers=12, num_heads=3, mlp_ratio=4.0, num_classes=10,cls =True):
         super().__init__()
         self.patch_encoding = PatchEmbeding(in_channels=in_channels, patch_size=patch_size, d_model=d_model)
