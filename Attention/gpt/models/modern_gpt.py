@@ -23,9 +23,12 @@ class ModernGPT(nn.Module):
         self.norm = RMSNorm(d_model)
         self.lm_head = nn.Linear(d_model, vocab_size, bias=False)
 
-    def forward(self, x):
+    def forward(self, x, input_embeding=None):
         B,T = x.shape
-        x = self.text_embeding(x)
+        if input_embeding is not None:
+            x = input_embeding
+        else:
+            x = self.text_embeding(x)
         # 因果掩码：1 = 允许看（含自己），0 = 屏蔽未来。
         mask = torch.tril(torch.ones(T, T, device=x.device))
         for layer in self.layers:
