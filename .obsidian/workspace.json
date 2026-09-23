@@ -23,12 +23,14 @@
             "id": "c61c9b8507d826b3",
             "type": "leaf",
             "state": {
-              "type": "pdf",
+              "type": "markdown",
               "state": {
-                "file": "papers/attention.pdf"
+                "file": "papers/简历.md",
+                "mode": "source",
+                "source": false
               },
-              "icon": "lucide-file-text",
-              "title": "attention"
+              "icon": "lucide-file",
+              "title": "简历"
             }
           }
         ],
@@ -201,17 +203,18 @@
   },
   "active": "c61c9b8507d826b3",
   "lastOpenFiles": [
+    "README.md.tmp.284628.1790171442228",
+    "README.md.tmp.284628.1790171437163",
+    "README.md.tmp.284628.1790171422365",
+    "README.md.tmp.284628.1790171416769",
+    "README.md.tmp.284628.1790171407514",
+    "README.md.tmp.284628.1790171404267",
+    "README.md.tmp.284628.1790171400820",
+    "README.md.tmp.284628.1790171382118",
+    "papers/attention.pdf",
+    "papers/简历.md",
     "Attention/checkpoints/vit_model_epoch_100.pth",
     "Attention/checkpoints/vit_model_epoch_99.pth",
-    "Attention/checkpoints/vit_model_epoch_98.pth",
-    "Attention/checkpoints/vit_model_epoch_97.pth",
-    "Attention/checkpoints/vit_model_epoch_96.pth",
-    "Attention/checkpoints/vit_model_epoch_95.pth",
-    "Attention/checkpoints/vit_model_epoch_94.pth",
-    "Attention/checkpoints/vit_model_epoch_93.pth",
-    "Attention/checkpoints/vit_model_epoch_92.pth",
-    "Attention/checkpoints/vit_model_epoch_91.pth",
-    "Attention/checkpoints/vit_model_epoch_90.pth",
     "README.md",
     "Attention/models/README.md",
     "Attention/experiments/exp_template.md",
